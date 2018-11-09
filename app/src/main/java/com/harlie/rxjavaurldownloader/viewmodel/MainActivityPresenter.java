@@ -43,18 +43,25 @@ public class MainActivityPresenter {
         this.albumUrlViewHolder = null;
     }
 
+    //FIXME: for better performance, maintain a list of selected objects
     public void doClick(AlbumUrl albumUrl) {
         Log.d(TAG, "-click-" + albumUrl);
         if (albumUrl.getAlbumUrlStatus() == AlbumUrl.AlbumUrlStatus.UNSELECTED) {
             albumUrl.setAlbumUrlStatus(AlbumUrl.AlbumUrlStatus.SELECTED);
-            //FIXME: for better performance, maintain a list of selected objects
             int position = albumUrlViewHolder.getAdapterPosition();
             adapter.notifyItemChanged(position);
         }
         else {
-            //make a beep sound
-            ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
-            toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
+            if (albumUrl.getAlbumUrlStatus() == AlbumUrl.AlbumUrlStatus.SELECTED) {
+                albumUrl.setAlbumUrlStatus(AlbumUrl.AlbumUrlStatus.UNSELECTED);
+                int position = albumUrlViewHolder.getAdapterPosition();
+                adapter.notifyItemChanged(position);
+            }
+            else {
+                //make a beep sound
+                ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+            }
         }
     }
 
