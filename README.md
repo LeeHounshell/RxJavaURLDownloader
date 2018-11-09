@@ -43,7 +43,7 @@ The createJob Parameters:
  * a callback function
 
 The Job API:
- * createJob
+ * constructor (create Job)
  * getUrlsForJob
  * start
  * pause

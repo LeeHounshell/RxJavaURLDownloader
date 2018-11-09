@@ -20,6 +20,9 @@ android {
     dataBinding {
         enabled = true
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -41,4 +44,5 @@ dependencies {
     //Support
     implementation 'com.android.support:cardview-v7:28.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation project(path: ':urldownloaderlibrary')
 }

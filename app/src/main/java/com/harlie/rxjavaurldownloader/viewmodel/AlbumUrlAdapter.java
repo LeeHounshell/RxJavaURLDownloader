@@ -42,7 +42,6 @@ public class AlbumUrlAdapter extends RecyclerView.Adapter<AlbumUrlViewHolder> {
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, "getItemCount: " + albumUrlList.size());
         return albumUrlList.size();
     }
 

@@ -23,10 +23,6 @@ public class AlbumUrl {
         COMPLETE
     }
 
-    public AlbumUrl() {
-        this.albumUrlStatus = UNSELECTED;
-    }
-
     @SerializedName("id")
     private int id;
     @SerializedName("albumId")
@@ -39,7 +35,28 @@ public class AlbumUrl {
     private String albumThumbnailUrl;
 
     private AlbumUrlStatus albumUrlStatus;
+    private int jobId;
 
+
+    public AlbumUrl() {
+        this.albumUrlStatus = UNSELECTED;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getJobId() {
+        Resources resources = RxJavaUrlDownloaderApplication.getAppContext().getResources();
+        String id = "";
+        if (jobId == 0) {
+            id = resources.getString(R.string.job_id) + ": " + resources.getString(R.string.empty_job_id);
+        }
+        else {
+            id = resources.getString(R.string.job_id) + ": " + jobId;
+        }
+        return id;
+    }
 
     public int getId() {
         return id;
