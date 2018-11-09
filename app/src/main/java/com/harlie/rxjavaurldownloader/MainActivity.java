@@ -6,10 +6,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.harlie.rxjavaurldownloader.Model.AlbumUrl;
-import com.harlie.rxjavaurldownloader.Retrofit.IMyAlbumUrlApi;
-import com.harlie.rxjavaurldownloader.Retrofit.AlbumUrlRetrofitClient;
-import com.harlie.rxjavaurldownloader.ViewHolder.AlbumUrlAdapter;
+import com.harlie.rxjavaurldownloader.model.AlbumUrl;
+import com.harlie.rxjavaurldownloader.retrofit.IMyAlbumUrlApi;
+import com.harlie.rxjavaurldownloader.retrofit.AlbumUrlRetrofitClient;
+import com.harlie.rxjavaurldownloader.viewholder.AlbumUrlAdapter;
 
 import java.util.List;
 

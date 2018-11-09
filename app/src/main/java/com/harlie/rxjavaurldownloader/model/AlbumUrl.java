@@ -1,4 +1,4 @@
-package com.harlie.rxjavaurldownloader.Model;
+package com.harlie.rxjavaurldownloader.model;
 
 //NOTE:  I am using the fake json server at https://jsonplaceholder.typicode.com/
 //       to create a "URL Download" list with AlbumUrl photo data.   This POJO class
@@ -19,16 +19,6 @@ public class AlbumUrl {
     @SerializedName("thumbnailUrl")
     private String albumThumbnailUrl;
 
-    public AlbumUrl() {
-    }
-
-    public AlbumUrl(int id, int albumId, String albumTitle, String albumPhotoUrl, String albumThumbnailUrl) {
-        this.id = id;
-        this.albumId = albumId;
-        this.albumTitle = albumTitle;
-        this.albumPhotoUrl = albumPhotoUrl;
-        this.albumThumbnailUrl = albumThumbnailUrl;
-    }
 
     public int getId() {
         return id;

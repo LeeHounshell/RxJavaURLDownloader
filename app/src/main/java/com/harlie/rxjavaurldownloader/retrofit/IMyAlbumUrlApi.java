@@ -1,6 +1,6 @@
-package com.harlie.rxjavaurldownloader.Retrofit;
+package com.harlie.rxjavaurldownloader.retrofit;
 
-import com.harlie.rxjavaurldownloader.Model.AlbumUrl;
+import com.harlie.rxjavaurldownloader.model.AlbumUrl;
 
 import java.util.List;
 

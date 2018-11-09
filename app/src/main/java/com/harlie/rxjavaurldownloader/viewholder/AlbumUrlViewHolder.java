@@ -1,23 +1,28 @@
-package com.harlie.rxjavaurldownloader.ViewHolder;
+package com.harlie.rxjavaurldownloader.viewholder;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.TextView;
 
-import com.harlie.rxjavaurldownloader.R;
+import com.harlie.rxjavaurldownloader.BR;
+import com.harlie.rxjavaurldownloader.databinding.JobAlbumUrlLayoutBinding;
 
 
 public class AlbumUrlViewHolder extends RecyclerView.ViewHolder {
+    private final JobAlbumUrlLayoutBinding binding;
+
     private TextView albumTitle;
     private TextView albumPhotoUrl;
     private TextView albumThumbUrl;
 
-    public AlbumUrlViewHolder(@NonNull View itemView) {
-        super(itemView);
-        albumTitle = itemView.findViewById(R.id.album_title);
-        albumPhotoUrl = itemView.findViewById(R.id.album_photo_url);
-        albumThumbUrl = itemView.findViewById(R.id.album_thumb_url);
+    public AlbumUrlViewHolder(@NonNull JobAlbumUrlLayoutBinding binding) {
+        super(binding.getRoot());
+        this.binding = binding;
+    }
+
+    public void bind(Object obj) {
+        binding.setVariable(BR.obj, obj);
+        binding.executePendingBindings();
     }
 
     public TextView getAlbumTitle() {
