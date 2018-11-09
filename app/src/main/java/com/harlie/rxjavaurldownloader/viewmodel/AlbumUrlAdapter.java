@@ -7,9 +7,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.harlie.rxjavaurldownloader.BaseActivity;
-import com.harlie.rxjavaurldownloader.MainActivity;
+import com.harlie.rxjavaurldownloader.databinding.AlbumUrlLayoutBinding;
 import com.harlie.rxjavaurldownloader.model.AlbumUrl;
-import com.harlie.rxjavaurldownloader.databinding.JobAlbumUrlLayoutBinding;
 
 import java.util.List;
 
@@ -27,11 +26,12 @@ public class AlbumUrlAdapter extends RecyclerView.Adapter<AlbumUrlViewHolder> {
 
     public AlbumUrlViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        final JobAlbumUrlLayoutBinding albumBinding = JobAlbumUrlLayoutBinding.inflate(layoutInflater, parent, false);
+        final AlbumUrlLayoutBinding albumBinding = AlbumUrlLayoutBinding.inflate(layoutInflater, parent, false);
         albumBinding.setView(baseActivity);
-        MainActivityPresenter mainActivityPresenter = new MainActivityPresenter(this, parent.getContext());
+        AlbumUrlViewHolder albumUrlViewHolder = new AlbumUrlViewHolder(albumBinding);
+        MainActivityPresenter mainActivityPresenter = new MainActivityPresenter(parent.getContext(), this, albumUrlViewHolder);
         albumBinding.setPresenter(mainActivityPresenter);
-        return new AlbumUrlViewHolder(albumBinding);
+        return albumUrlViewHolder;
     }
 
     @Override
@@ -46,4 +46,7 @@ public class AlbumUrlAdapter extends RecyclerView.Adapter<AlbumUrlViewHolder> {
         return albumUrlList.size();
     }
 
+    public List<AlbumUrl> getAlbumUrlList() {
+        return albumUrlList;
+    }
 }

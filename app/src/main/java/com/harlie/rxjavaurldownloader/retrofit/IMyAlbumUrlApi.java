@@ -9,6 +9,9 @@ import retrofit2.http.GET;
 
 
 public interface IMyAlbumUrlApi {
-    @GET("photos")
-    Observable<List<AlbumUrl>> getAlbumPhotos();
+    static final String ALBUM_WEBSERVER_URL = "https://jsonplaceholder.typicode.com/";
+    static final String ALBUM_DOWNLOAD_URL  = "photos";
+
+    @GET(ALBUM_DOWNLOAD_URL)
+    Observable<List<AlbumUrl>> getListOfAlbumPhotoUrl();
 }

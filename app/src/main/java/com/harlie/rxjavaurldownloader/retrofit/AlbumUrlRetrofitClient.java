@@ -8,10 +8,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AlbumUrlRetrofitClient {
     private static Retrofit retrofit;
 
-    public static Retrofit getInstance() {
+    public static Retrofit getInstance(String url) {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://jsonplaceholder.typicode.com/")
+                    .baseUrl(url)
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();
