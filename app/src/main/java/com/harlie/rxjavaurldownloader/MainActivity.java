@@ -1,15 +1,14 @@
 package com.harlie.rxjavaurldownloader;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.harlie.rxjavaurldownloader.model.AlbumUrl;
-import com.harlie.rxjavaurldownloader.retrofit.IMyAlbumUrlApi;
 import com.harlie.rxjavaurldownloader.retrofit.AlbumUrlRetrofitClient;
-import com.harlie.rxjavaurldownloader.viewholder.AlbumUrlAdapter;
+import com.harlie.rxjavaurldownloader.retrofit.IMyAlbumUrlApi;
+import com.harlie.rxjavaurldownloader.viewmodel.AlbumUrlAdapter;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     static final String TAG = "LEE: " + MainActivity.class.getSimpleName();
 
     IMyAlbumUrlApi myAlbumUrlApi;

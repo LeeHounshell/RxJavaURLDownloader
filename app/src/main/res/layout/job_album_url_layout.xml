@@ -6,6 +6,12 @@
 
     <data>
         <variable
+            name="view"
+            type="com.harlie.rxjavaurldownloader.BaseActivity"/>
+        <variable
+            name="presenter"
+            type="com.harlie.rxjavaurldownloader.viewmodel.MainActivityPresenter"/>
+        <variable
             name="obj"
             type="com.harlie.rxjavaurldownloader.model.AlbumUrl"/>
     </data>
@@ -21,6 +27,7 @@
             android:layout_margin="@dimen/standard_margin"
             app:cardCornerRadius="@dimen/standard_card_corner_radius"
             app:cardElevation="@dimen/standard_card_elevation"
+            android:onClick="@{() -> presenter.doClick(obj)}"
             >
 
             <LinearLayout
