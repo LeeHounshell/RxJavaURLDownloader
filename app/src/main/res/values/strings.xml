@@ -5,10 +5,13 @@
     <string name="album_thumb_url">thumbnail url</string>
     <string name="empty_job_id">unassigned</string>
     <string name="job_id">Job Id</string>
+    <string name="job_size">Job Size</string>
+    <string name="job_status">Job Status</string>
     <string name="create_job">Create a Job</string>
     <string name="run_jobs">Run All Jobs</string>
     <string name="nothing_selected">Nothing is Selected!</string>
     <string name="no_jobs_queued">No Jobs are Queued!</string>
     <string name="jobs_running">All Jobs are Running!</string>
     <string name="job_created">Job Created</string>
+    <string name="job_failed">Job Failed!</string>
 </resources>

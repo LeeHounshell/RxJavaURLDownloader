@@ -108,29 +108,6 @@ public class AlbumUrl {
         this.albumUrlStatus = albumUrlStatus;
     }
 
-    public int getBackgroundColor() {
-        Resources resources = RxJavaUrlDownloaderApplication.getAppContext().getResources();
-        int color = 0;
-        switch (albumUrlStatus) {
-            case UNSELECTED:
-                color = resources.getColor(R.color.color_UNSELECTED);
-                break;
-            case SELECTED:
-                color = resources.getColor(R.color.color_SELECTED);
-                break;
-            case QUEUED:
-                color = resources.getColor(R.color.color_QUEUED);
-                break;
-            case DOWNLOADING:
-                color = resources.getColor(R.color.color_DOWNLOADING);
-                break;
-            case COMPLETE:
-                color = resources.getColor(R.color.color_COMPLETE);
-                break;
-        }
-        return color;
-    }
-
     @Override
     public String toString() {
         return "AlbumUrl{" +

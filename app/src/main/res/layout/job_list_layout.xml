@@ -10,10 +10,10 @@
             type="com.harlie.rxjavaurldownloader.BaseActivity"/>
         <variable
             name="presenter"
-            type="com.harlie.rxjavaurldownloader.viewmodel.MainActivityPresenter"/>
+            type="com.harlie.rxjavaurldownloader.viewmodel.JobListActivityPresenter"/>
         <variable
             name="obj"
-            type="com.harlie.rxjavaurldownloader.model.AlbumUrl"/>
+            type="com.harlie.urldownloaderlibrary.Job"/>
     </data>
 
     <RelativeLayout
@@ -22,7 +22,7 @@
         >
 
         <android.support.v7.widget.CardView
-            android:id="@+id/album_card"
+            android:id="@+id/card_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/standard_margin"
@@ -40,39 +40,29 @@
                 >
 
                 <TextView
-                    android:id="@+id/album_title"
+                    android:id="@+id/job_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{obj.getAlbumTitle()}"
-                    android:hint="@string/album_title"
+                    android:text="@{String.valueOf(obj.getJobId())}"
+                    android:hint="@string/job_id"
                     android:textStyle="bold"
                     />
 
                 <TextView
-                    android:id="@+id/album_photo_url"
+                    android:id="@+id/job_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{obj.getAlbumPhotoUrl()}"
-                    android:hint="@string/album_photo_url"
+                    android:text="@{String.valueOf(obj.getUrlList().size())}"
+                    android:hint="@string/job_size"
                     android:textStyle="normal"
                     />
 
                 <TextView
-                    android:id="@+id/album_thumb_url"
+                    android:id="@+id/job_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{obj.getAlbumThumbnailUrl()}"
-                    android:hint="@string/album_thumb_url"
-                    android:textStyle="normal"
-                    android:visibility="gone"
-                    />
-
-                <TextView
-                    android:id="@+id/job_id"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{obj.getJobId()}"
-                    android:hint="@string/job_id"
+                    android:text="@{obj.getJobState().name()}"
+                    android:hint="@string/job_status"
                     android:textStyle="normal"
                     />
 

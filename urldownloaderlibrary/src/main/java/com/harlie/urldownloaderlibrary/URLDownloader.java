@@ -25,7 +25,12 @@ public class URLDownloader {
     public static Job createJob(List<String> urlList, int timeOut, int numberRetrys, String callbackKey) {
         Log.d(TAG, "createJob: urlList=" + urlList + ", timeOut=" + timeOut + ", numberRetrys=" + numberRetrys + ", callbackKey=" + callbackKey);
         Job job = new Job(urlList, timeOut, numberRetrys, callbackKey);
-        jobList.add(job);
+        if (job != null) {
+            jobList.add(job);
+        }
+        else {
+            Log.e(TAG, "createJob for " + urlList.size() + " Urls failed! timeout=" + timeOut + ", numberRetrys=" + numberRetrys + ", callbackKey=" + callbackKey);
+        }
         return job;
     }
 

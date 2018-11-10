@@ -95,6 +95,10 @@ public class Job implements IJobInterface {
         this.jobState = jobState;
     }
 
+    public JobState getJobState() {
+        return jobState;
+    }
+
     public List<String> getUrlList() {
         return urlList;
     }
@@ -113,5 +117,18 @@ public class Job implements IJobInterface {
 
     public int getJobId() {
         return jobId;
+    }
+
+    @Override
+    public String toString() {
+        return "Job{" +
+                "jobId=" + jobId +
+                ", urlList=" + urlList +
+                ", timeOut=" + timeOut +
+                ", numberRetrys=" + numberRetrys +
+                ", callbackKey='" + callbackKey + '\'' +
+                ", jobState=" + jobState +
+                ", jobQueue=" + jobQueue +
+                '}';
     }
 }
