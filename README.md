@@ -12,9 +12,8 @@ That data is presented in a RecyclerView using Data Binding.
 
 Click on one or more items to "select" them for the next job. They will change color.
 Press the "Create a Job" button to add the set of selected items into a new job queue.
-Items can only be placed into a single job queue and can not be reselected.
-After all desired job sets are created, press "Run All Jobs" to start jobs and
-transition to view the jobs list.  Jobs are managed from the jobs list Activity.
+Items can only be placed into a single job queue and can not be reselected for another.
+After all desired job sets are created, press "Manage Jobs" to manage to the jobs queue.
 
 
 URL Downloader Library

@@ -105,14 +105,13 @@ public class MainActivityPresenter {
         }
     }
 
-    public void runAllJobs(View v) {
-        Log.d(TAG, "runAllJobs");
+    public void manageJobList(View v) {
+        Log.d(TAG, "manageJobList");
         if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
             Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
         }
         else {
-            URLDownloader.startJobs();
-            Toast.makeText(context, R.string.jobs_running, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.manage_jobs, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context, JobListActivity.class);
             context.startActivity(intent);
         }

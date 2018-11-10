@@ -16,6 +16,7 @@ public class Job implements IJobInterface {
         JOB_RUNNING,
         JOB_PAUSED,
         JOB_COMPLETE,
+        JOB_CANCELLED
     }
 
     private static volatile int sLastJobNumber;

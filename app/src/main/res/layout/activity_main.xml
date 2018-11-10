@@ -37,13 +37,13 @@
             android:text="@string/create_job"
             android:textColor="@android:color/white"
             android:background="@drawable/ripple"
-            app:layout_constraintEnd_toStartOf="@+id/run_jobs_button"
+            app:layout_constraintEnd_toStartOf="@+id/manage_jobs_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
 
         <Button
-            android:id="@+id/run_jobs_button"
+            android:id="@+id/manage_jobs_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -51,8 +51,8 @@
             android:layout_marginStart="@dimen/standard_margin"
             android:layout_marginBottom="@dimen/standard_margin"
             android:padding="@dimen/standard_margin"
-            android:onClick="@{(v) -> presenter.runAllJobs(v)}"
-            android:text="@string/run_jobs"
+            android:onClick="@{(v) -> presenter.manageJobList(v)}"
+            android:text="@string/manage_jobs"
             android:textColor="@android:color/white"
             android:background="@drawable/ripple"
             app:layout_constraintEnd_toEndOf="parent"

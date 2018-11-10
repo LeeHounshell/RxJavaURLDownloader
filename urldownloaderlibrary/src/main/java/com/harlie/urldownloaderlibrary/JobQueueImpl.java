@@ -10,27 +10,29 @@ class JobQueueImpl implements IJobQueue {
 
     @Override
     public void start(Job job) {
-        Log.d(TAG, "start");
-        job.setJobState(Job.JobState.JOB_RUNNING);
+        Log.d(TAG, "start: job=" + job);
         this.job = job;
+        job.setJobState(Job.JobState.JOB_RUNNING);
     }
 
     @Override
     public void pause() {
-        Log.d(TAG, "pause");
+        Log.d(TAG, "pause: job=" + job);
         job.setJobState(Job.JobState.JOB_PAUSED);
         // FIXME
     }
 
     @Override
     public void unpause() {
-        Log.d(TAG, "unpause");
+        Log.d(TAG, "unpause: job=" + job);
+        job.setJobState(Job.JobState.JOB_RUNNING);
         // FIXME
     }
 
     @Override
     public void cancel() {
-        Log.d(TAG, "cancel");
+        Log.d(TAG, "cancel: job=" + job);
+        job.setJobState(Job.JobState.JOB_CANCELLED);
         // FIXME
     }
 

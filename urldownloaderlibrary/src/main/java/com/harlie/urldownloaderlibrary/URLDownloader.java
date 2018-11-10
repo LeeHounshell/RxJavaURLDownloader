@@ -57,6 +57,15 @@ public class URLDownloader {
         }
     }
 
+    public static void pauseJobs() {
+        Log.d(TAG, "pauseJobs");
+        for (Job job : jobList) {
+            if (job.isRunning()) {
+                job.pause();
+            }
+        }
+    }
+
     private static Job findJob(Job myJob) {
         for (Job job : jobList) {
             if (job.equals(myJob)) {
