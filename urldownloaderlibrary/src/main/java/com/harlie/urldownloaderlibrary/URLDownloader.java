@@ -22,7 +22,7 @@ public class URLDownloader {
     private URLDownloader() {
     }
 
-    public static Job createJob(List<String> urlList, int timeOut, int numberRetrys, String callbackKey) {
+    public static Job createJob(List<String> urlList, int timeOut, int numberRetrys, int callbackKey) {
         Log.d(TAG, "createJob: urlList=" + urlList + ", timeOut=" + timeOut + ", numberRetrys=" + numberRetrys + ", callbackKey=" + callbackKey);
         Job job = new Job(urlList, timeOut, numberRetrys, callbackKey);
         if (job != null) {

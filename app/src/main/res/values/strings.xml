@@ -17,10 +17,19 @@
     <string name="jobs_paused">All Running Jobs are Paused!</string>
     <string name="jobs_stopped">All Jobs are Stopped!</string>
     <string name="no_jobs_queued">No Jobs are Queued!</string>
-    <string name="jobs_running">All Jobs are Running!</string>
+    <string name="jobs_running">Available Jobs are Running!</string>
     <string name="job_created">Job Created</string>
     <string name="job_failed">Job Failed!</string>
+    <string name="queue_job">Queue Job</string>
+    <string name="run_job">Run Job</string>
+    <string name="pause_job">Pause Job</string>
+    <string name="resume_job">Resume Job</string>
+    <string name="cancel_job">Cancel Job</string>
     <string name="pause_jobs">Pause All Jobs</string>
     <string name="everything_selected">Everything Selected</string>
     <string name="unselected">Unselected!</string>
+    <string name="title_job_url_list"><b>The Job URLs:</b></string>
+    <string name="ok">Ok</string>
+    <string name="job_dialog_title">Job Detail Management</string>
+    <string name="loading_please_wait">Loading... please wait</string>
 </resources>

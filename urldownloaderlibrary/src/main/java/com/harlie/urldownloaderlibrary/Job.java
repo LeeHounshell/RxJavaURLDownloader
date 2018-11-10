@@ -25,12 +25,12 @@ public class Job implements IJobInterface {
     private List<String> urlList;
     private int timeOut;
     private int numberRetrys;
-    private String callbackKey;
+    private int callbackKey;
     private JobState jobState;
     private IJobQueue jobQueue;
 
 
-    public Job(List<String> urlList, int timeOut, int numberRetrys, String callbackKey) {
+    public Job(List<String> urlList, int timeOut, int numberRetrys, int callbackKey) {
         this.urlList = urlList;
         this.timeOut = timeOut;
         this.numberRetrys = numberRetrys;
@@ -119,7 +119,7 @@ public class Job implements IJobInterface {
         return numberRetrys;
     }
 
-    public String getCallbackKey() {
+    public int getCallbackKey() {
         return callbackKey;
     }
 
@@ -136,15 +136,18 @@ public class Job implements IJobInterface {
         return name;
     }
 
-    public String getJobInfo(Context context) {
+    public String getJobInfo(Context context, boolean alsoGetJobName) {
         String info = "";
         if (context != null) {
             Resources resources = context.getResources();
             Job job = URLDownloader.getJob(jobId);
-            info = resources.getString(R.string.job_size) + ": " + job.getUrlsForJob().size() +
+            if (alsoGetJobName) {
+                info = getJobName(context) + "\n";
+            }
+            info = info +
+                       resources.getString(R.string.job_size) + ": " + job.getUrlsForJob().size() +
                 "\n" + resources.getString(R.string.job_timeout) + ": " + job.getTimeOut() +
                 "\n" + resources.getString(R.string.job_retrys) + ": " + job.getNumberRetrys() +
-                "\n" + resources.getString(R.string.job_callback) + ": " + job.getCallbackKey() +
                 "\n" + resources.getString(R.string.job_status) + ": " + job.getJobState().name();
         }
         return info;

@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryLight">#00BFFF</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#191970</color>
 
     <color name="color_UNSELECTED">@android:color/white</color>
     <color name="color_SELECTED">@android:color/holo_green_light</color>
     <color name="color_QUEUED">@android:color/holo_red_light</color>
     <color name="color_DOWNLOADING">@android:color/holo_purple</color>
     <color name="color_COMPLETE">@android:color/holo_blue_light</color>
+    <color name="color_CANCELLED">@android:color/holo_orange_dark</color>
 
     <color name="color_JOB_CREATED">@android:color/white</color>
     <color name="color_JOB_QUEUED">@android:color/holo_green_light</color>
     <color name="color_JOB_RUNNING">@android:color/holo_purple</color>
     <color name="color_JOB_PAUSED">@android:color/holo_red_light</color>
     <color name="color_JOB_COMPLETE">@android:color/holo_blue_light</color>
-    <color name="color_JOB_CANCELED">@android:color/holo_orange_dark</color>
+    <color name="color_JOB_CANCELLED">@android:color/holo_orange_dark</color>
 </resources>

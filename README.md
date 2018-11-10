@@ -29,6 +29,7 @@ There are no limits on the number of concurrent tasks.
 
 The URLDownloader API:
  * createJob
+ * getJob
  * getAllJobs
  * getUrlsForJob
  * startJobs

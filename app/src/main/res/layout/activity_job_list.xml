@@ -15,6 +15,8 @@
         android:layout_height="match_parent"
         tools:context=".JobListActivity">
 
+        <include layout="@layout/loading_indicator"/>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/job_list_recyclerview"
             android:layout_width="match_parent"

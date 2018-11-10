@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.harlie.rxjavaurldownloader.databinding.ActivityMainBinding;
 import com.harlie.rxjavaurldownloader.model.AlbumUrl;
@@ -51,6 +52,7 @@ public class MainActivity extends BaseActivity {
 
     private void loadTheAlbumUrlList() {
         Log.d(TAG, "loadTheAlbumUrlList");
+        findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
         compositeDisposable.add(myAlbumUrlApi.getListOfAlbumPhotoUrl()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -59,6 +61,7 @@ public class MainActivity extends BaseActivity {
                 public void accept(List<AlbumUrl> albumUrls) throws Exception {
                     Log.d(TAG, "loadTheAlbumUrlList Consumer accept: albumUrls.size=" + albumUrls.size());;
                     displayAlbumUrlList(albumUrls);
+                    findViewById(R.id.loading_panel).setVisibility(View.GONE);
                 }
             }));
     }

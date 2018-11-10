@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.harlie.rxjavaurldownloader.BaseActivity;
 import com.harlie.rxjavaurldownloader.R;
+import com.harlie.rxjavaurldownloader.util.JobManagementDialog;
 import com.harlie.urldownloaderlibrary.Job;
 import com.harlie.urldownloaderlibrary.URLDownloader;
 
@@ -33,8 +35,21 @@ public class JobListActivityPresenter {
         this.jobListViewHolder = null;
     }
 
-    public void doClick(Job job) {
-        Log.d(TAG, "-click-" + job);
+    public void doClick(final Job job) {
+        Log.d(TAG, "doClick: -click-");
+        if (context instanceof BaseActivity) {
+            Log.d(TAG, "doClick: job=" + job);
+            final BaseActivity baseActivity = (BaseActivity) context;
+            final String title = baseActivity.getResources().getString(R.string.job_dialog_title);
+            final String detail = job.getJobInfo(context, true);
+            baseActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, R.string.loading_please_wait, Toast.LENGTH_LONG).show();
+                    new JobManagementDialog(baseActivity, title, detail, job, adapter);
+                }
+            });
+        }
     }
 
     public void pauseAllJobs(View v) {
@@ -93,7 +108,7 @@ public class JobListActivityPresenter {
                 color = resources.getColor(R.color.color_JOB_COMPLETE);
                 break;
             case JOB_CANCELLED:
-                color = resources.getColor(R.color.color_JOB_CANCELED);
+                color = resources.getColor(R.color.color_JOB_CANCELLED);
                 break;
         }
         return color;

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
@@ -18,8 +17,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.CardView
             android:id="@+id/card_id"
@@ -29,15 +27,13 @@
             app:cardCornerRadius="@dimen/standard_card_corner_radius"
             app:cardElevation="@dimen/standard_card_elevation"
             app:cardBackgroundColor="@{presenter.getBackgroundColor(obj)}"
-            android:onClick="@{() -> presenter.doClick(obj)}"
-            >
+            android:onClick="@{() -> presenter.doClick(obj)}">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_margin="@dimen/standard_margin"
-                >
+                android:layout_margin="@dimen/standard_margin">
 
                 <TextView
                     android:id="@+id/job_id"
@@ -45,17 +41,15 @@
                     android:layout_height="wrap_content"
                     android:text="@{obj.getJobName(presenter.getContext())}"
                     android:hint="@string/job_id"
-                    android:textStyle="bold"
-                    />
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/job_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{obj.getJobInfo(presenter.getContext())}"
+                    android:text="@{obj.getJobInfo(presenter.getContext(), false)}"
                     android:hint="@string/job_status"
-                    android:textStyle="normal"
-                    />
+                    android:textStyle="normal"/>
 
             </LinearLayout>
 

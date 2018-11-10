@@ -20,7 +20,8 @@ public class AlbumUrl {
         SELECTED,
         QUEUED,
         DOWNLOADING,
-        COMPLETE
+        COMPLETE,
+        CANCELLED
     }
 
     @SerializedName("id")
