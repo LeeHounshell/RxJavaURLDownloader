@@ -61,6 +61,18 @@ public class JobListActivityPresenter {
         }
     }
 
+    public void stopAllJobs(View v) {
+        Log.d(TAG, "stopAllJobs");
+        if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
+            Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            URLDownloader.stopJobs();
+            Toast.makeText(context, R.string.jobs_stopped, Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     public int getBackgroundColor(Job job) {
         Resources resources = context.getResources();
         int color = 0;

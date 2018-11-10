@@ -13,6 +13,7 @@ class JobQueueImpl implements IJobQueue {
         Log.d(TAG, "start: job=" + job);
         this.job = job;
         job.setJobState(Job.JobState.JOB_RUNNING);
+        // FIXME
     }
 
     @Override

@@ -94,6 +94,11 @@ public class Job implements IJobInterface {
         return jobState == JobState.JOB_COMPLETE;
     }
 
+    @Override
+    public boolean isCancelled() {
+        return jobState == JobState.JOB_CANCELLED;
+    }
+
     public void setJobState(JobState jobState) {
         this.jobState = jobState;
     }

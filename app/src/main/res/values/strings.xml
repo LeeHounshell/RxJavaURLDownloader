@@ -10,8 +10,10 @@
     <string name="create_job">Create a Job</string>
     <string name="manage_jobs">Manage Jobs</string>
     <string name="run_jobs">Run All Jobs</string>
+    <string name="stop_jobs">Stop All Jobs</string>
     <string name="nothing_selected">Nothing is Selected!</string>
     <string name="jobs_paused">All Jobs are Paused!</string>
+    <string name="jobs_stopped">All Jobs are Stopped!</string>
     <string name="no_jobs_queued">No Jobs are Queued!</string>
     <string name="jobs_running">All Jobs are Running!</string>
     <string name="job_created">Job Created</string>

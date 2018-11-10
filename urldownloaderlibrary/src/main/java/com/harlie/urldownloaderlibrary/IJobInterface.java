@@ -10,4 +10,5 @@ public interface IJobInterface {
     boolean isRunning();
     boolean isPaused();
     boolean isComplete();
+    boolean isCancelled();
 }
