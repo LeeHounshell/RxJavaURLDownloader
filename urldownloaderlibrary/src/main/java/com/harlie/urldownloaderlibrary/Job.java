@@ -1,5 +1,7 @@
 package com.harlie.urldownloaderlibrary;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import java.util.List;
@@ -117,6 +119,33 @@ public class Job implements IJobInterface {
 
     public int getJobId() {
         return jobId;
+    }
+
+    public String getJobName(Context context) {
+        String name = "";
+        if (context != null) {
+            Resources resources = context.getResources();
+            name = resources.getString(R.string.job_id) + ": " + jobId;
+        }
+        return name;
+    }
+
+    public String getJobSize(Context context) {
+        String name = "";
+        if (context != null) {
+            Resources resources = context.getResources();
+            name = resources.getString(R.string.job_size) + ": " + jobId;
+        }
+        return name;
+    }
+
+    public String getJobStatus(Context context) {
+        String status = "";
+        if (context != null) {
+            Resources resources = context.getResources();
+            status = resources.getString(R.string.job_status) + ": " + getJobState().name();
+        }
+        return status;
     }
 
     @Override

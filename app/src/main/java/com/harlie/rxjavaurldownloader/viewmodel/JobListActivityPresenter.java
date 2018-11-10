@@ -56,4 +56,8 @@ public class JobListActivityPresenter {
         }
         return color;
     }
+
+    public Context getContext() {
+        return context;
+    }
 }

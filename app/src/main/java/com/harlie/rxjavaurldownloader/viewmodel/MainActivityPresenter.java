@@ -140,4 +140,8 @@ public class MainActivityPresenter {
         }
         return color;
     }
+
+    public Context getContext() {
+        return context;
+    }
 }

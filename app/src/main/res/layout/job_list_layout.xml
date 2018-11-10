@@ -43,7 +43,7 @@
                     android:id="@+id/job_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{String.valueOf(obj.getJobId())}"
+                    android:text="@{obj.getJobName(presenter.getContext())}"
                     android:hint="@string/job_id"
                     android:textStyle="bold"
                     />
@@ -52,7 +52,7 @@
                     android:id="@+id/job_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{String.valueOf(obj.getUrlList().size())}"
+                    android:text="@{obj.getJobSize(presenter.getContext())}"
                     android:hint="@string/job_size"
                     android:textStyle="normal"
                     />
@@ -61,7 +61,7 @@
                     android:id="@+id/job_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{obj.getJobState().name()}"
+                    android:text="@{obj.getJobStatus(presenter.getContext())}"
                     android:hint="@string/job_status"
                     android:textStyle="normal"
                     />
