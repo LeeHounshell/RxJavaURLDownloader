@@ -2,5 +2,8 @@
     <string name="app_name">URL Downloader Library</string>
     <string name="job_id">Job Id</string>
     <string name="job_size">Job Size</string>
+    <string name="job_timeout">Job Timeout</string>
+    <string name="job_retrys">Job Retrys</string>
+    <string name="job_callback">Job Callback</string>
     <string name="job_status">Job Status</string>
 </resources>

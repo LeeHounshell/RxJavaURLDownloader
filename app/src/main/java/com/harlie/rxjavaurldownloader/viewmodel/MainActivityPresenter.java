@@ -7,6 +7,7 @@ import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.harlie.rxjavaurldownloader.JobListActivity;
@@ -18,8 +19,6 @@ import com.harlie.urldownloaderlibrary.URLDownloader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.COMPLETE;
-import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.DOWNLOADING;
 import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.QUEUED;
 import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.SELECTED;
 import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.UNSELECTED;
@@ -72,6 +71,16 @@ public class MainActivityPresenter {
         }
     }
 
+    private int nowManySelected() {
+        int count = 0;
+        for (AlbumUrl albumUrl : adapter.getAlbumUrlList()) {
+            if (albumUrl.getAlbumUrlStatus() == SELECTED) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
     public void createJob(View v) {
         Log.d(TAG, "createJob");
         List<AlbumUrl> selectedAlbumUrls = new ArrayList<>();
@@ -114,6 +123,44 @@ public class MainActivityPresenter {
             Toast.makeText(context, R.string.manage_jobs, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context, JobListActivity.class);
             context.startActivity(intent);
+        }
+    }
+
+    public void selectAllAlbums(View v) {
+        Log.d(TAG, "selectAllAlbums");
+        boolean selectedSomething = false;
+        boolean unselectedSomething = false;
+        boolean haveSelections = nowManySelected() > 0;
+        for (AlbumUrl albumUrl : adapter.getAlbumUrlList()) {
+            if (haveSelections) { // we unselect everything selected in this case
+                if (albumUrl.getAlbumUrlStatus() == SELECTED) {
+                    Log.d(TAG, "selectAllAlbums: unselecting " + albumUrl.getAlbumPhotoUrl());
+                    albumUrl.setAlbumUrlStatus(UNSELECTED);
+                    unselectedSomething = true;
+                }
+            }
+            else { // select everything unselected
+                if (albumUrl.getAlbumUrlStatus() == UNSELECTED) {
+                    Log.d(TAG, "selectAllAlbums: selecting " + albumUrl.getAlbumPhotoUrl());
+                    albumUrl.setAlbumUrlStatus(SELECTED);
+                    selectedSomething = true;
+                }
+            }
+        }
+        if (unselectedSomething) {
+            Toast.makeText(context, R.string.unselected, Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
+            Button button = (Button) v;
+            button.setText(v.getResources().getString(R.string.select_jobs));
+        }
+        else if (selectedSomething) {
+            Toast.makeText(context, R.string.everything_selected, Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
+            Button button = (Button) v;
+            button.setText(v.getResources().getString(R.string.unselect_jobs));
+        }
+        else {
+            Toast.makeText(context, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -41,7 +41,7 @@ public class URLDownloader {
 
     public static List<String> getUrlsForJob(Job job) {
         Log.d(TAG, "getUrlsForJob");
-        Job theJob = findJob(job);
+        Job theJob = getJob(job.getJobId());
         if (theJob == null) {
             return null;
         }
@@ -75,9 +75,9 @@ public class URLDownloader {
         }
     }
 
-    private static Job findJob(Job myJob) {
+    public static Job getJob(int jobId) {
         for (Job job : jobList) {
-            if (job.equals(myJob)) {
+            if (job.getJobId() == jobId) {
                 return job;
             }
         }

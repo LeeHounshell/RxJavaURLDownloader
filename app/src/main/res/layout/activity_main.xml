@@ -54,8 +54,25 @@
             android:text="@string/manage_jobs"
             android:textColor="@android:color/white"
             android:background="@drawable/ripple"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/select_all_button"
             app:layout_constraintStart_toEndOf="@+id/create_job_button"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <Button
+            android:id="@+id/select_all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/standard_margin"
+            android:padding="@dimen/standard_margin"
+            android:onClick="@{(v) -> presenter.selectAllAlbums(v)}"
+            android:text="@string/select_jobs"
+            android:textColor="@android:color/white"
+            android:background="@drawable/ripple"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/manage_jobs_button"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </android.support.constraint.ConstraintLayout>

@@ -136,22 +136,18 @@ public class Job implements IJobInterface {
         return name;
     }
 
-    public String getJobSize(Context context) {
-        String name = "";
+    public String getJobInfo(Context context) {
+        String info = "";
         if (context != null) {
             Resources resources = context.getResources();
-            name = resources.getString(R.string.job_size) + ": " + jobId;
+            Job job = URLDownloader.getJob(jobId);
+            info = resources.getString(R.string.job_size) + ": " + job.getUrlsForJob().size() +
+                "\n" + resources.getString(R.string.job_timeout) + ": " + job.getTimeOut() +
+                "\n" + resources.getString(R.string.job_retrys) + ": " + job.getNumberRetrys() +
+                "\n" + resources.getString(R.string.job_callback) + ": " + job.getCallbackKey() +
+                "\n" + resources.getString(R.string.job_status) + ": " + job.getJobState().name();
         }
-        return name;
-    }
-
-    public String getJobStatus(Context context) {
-        String status = "";
-        if (context != null) {
-            Resources resources = context.getResources();
-            status = resources.getString(R.string.job_status) + ": " + getJobState().name();
-        }
-        return status;
+        return info;
     }
 
     @Override
