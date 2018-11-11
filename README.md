@@ -40,7 +40,7 @@ The createJob Parameters:
  * a list of URLs to be downloaded
  * a timeout value in seconds
  * the number of retries
- * a callback function
+ * a callback
 
 The Job API:
  * constructor (create Job)
@@ -49,4 +49,16 @@ The Job API:
  * pause
  * unpause
  * cancel
+
+
+---
+SCREENSHOTS
+---
+
+
+![screen](../master/screens/create_jobs.gif)
+
+![screen](../master/screens/job_list.jpg)
+
+![screen](../master/screens/job_details.png)
 
