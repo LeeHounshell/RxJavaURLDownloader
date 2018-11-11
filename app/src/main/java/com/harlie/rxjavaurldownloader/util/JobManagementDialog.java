@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.harlie.rxjavaurldownloader.BaseActivity;
 import com.harlie.rxjavaurldownloader.R;
@@ -45,6 +46,11 @@ public class JobManagementDialog
         StringBuilder urlList = new StringBuilder();
         int count = 0;
         for (String url : job.getUrlList()) {
+            if (count >= 100) {
+                Log.d(TAG, "only show the first 100 URLs");
+                Toast.makeText(activity, R.string.only_show_100, Toast.LENGTH_LONG).show();
+                break;
+            }
             urlList.append("" + ++count + ": " + url + "\n");
         }
         urlListTextView.setText(urlList.toString());

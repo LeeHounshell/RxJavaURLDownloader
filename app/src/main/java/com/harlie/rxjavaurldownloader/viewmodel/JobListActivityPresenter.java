@@ -45,7 +45,6 @@ public class JobListActivityPresenter {
             baseActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(context, R.string.loading_please_wait, Toast.LENGTH_LONG).show();
                     new JobManagementDialog(baseActivity, title, detail, job, adapter);
                 }
             });

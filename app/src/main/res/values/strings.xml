@@ -28,8 +28,8 @@
     <string name="pause_jobs">Pause All Jobs</string>
     <string name="everything_selected">Everything Selected</string>
     <string name="unselected">Unselected!</string>
-    <string name="title_job_url_list"><b>The Job URLs:</b></string>
+    <string name="title_job_url_list"><b>The First 100 URLs for Job:</b></string>
     <string name="ok">Ok</string>
     <string name="job_dialog_title">Job Detail Management</string>
-    <string name="loading_please_wait">Loading... please wait</string>
+    <string name="only_show_100">showing the first 100 URLs only</string>
 </resources>
