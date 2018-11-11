@@ -9,7 +9,7 @@
     <string name="job_status">Job Status</string>
     <string name="create_job">Create a Job</string>
     <string name="manage_jobs">Manage Jobs</string>
-    <string name="select_jobs">Select Jobs</string>
+    <string name="select_jobs">Select 4 Job</string>
     <string name="unselect_jobs">Unselect</string>
     <string name="run_jobs">Run All Jobs</string>
     <string name="stop_jobs">Stop All Jobs</string>
