@@ -56,9 +56,9 @@ SCREENSHOTS
 ---
 
 
-![screen](../master/screens/create_jobs.gif)
+![screen](../master/screens/create_jobs.png)
 
-![screen](../master/screens/job_list.jpg)
+![screen](../master/screens/job_list.png)
 
 ![screen](../master/screens/job_details.png)
 
