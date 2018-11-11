@@ -9,7 +9,7 @@ public class URLDownloader {
     static final String TAG = "LEE: " + URLDownloader.class.getSimpleName();
 
     private static URLDownloader sInstance;
-    private static List<Job> jobList = new ArrayList<Job>();
+    private List<Job> jobList = new ArrayList<Job>();
 
 
     public static URLDownloader getInstance() {
@@ -22,7 +22,7 @@ public class URLDownloader {
     private URLDownloader() {
     }
 
-    public static Job createJob(List<String> urlList, int timeOut, int numberRetrys, int callbackKey) {
+    public Job createJob(List<String> urlList, int timeOut, int numberRetrys, int callbackKey) {
         Log.d(TAG, "createJob: urlList=" + urlList + ", timeOut=" + timeOut + ", numberRetrys=" + numberRetrys + ", callbackKey=" + callbackKey);
         Job job = new Job(urlList, timeOut, numberRetrys, callbackKey);
         if (job != null) {
@@ -34,12 +34,12 @@ public class URLDownloader {
         return job;
     }
 
-    public static List<Job> getAllJobs() {
+    public List<Job> getAllJobs() {
         Log.d(TAG, "getAllJobs");
         return jobList;
     }
 
-    public static List<String> getUrlsForJob(Job job) {
+    public List<String> getUrlsForJob(Job job) {
         Log.d(TAG, "getUrlsForJob");
         Job theJob = getJob(job.getJobId());
         if (theJob == null) {
@@ -48,7 +48,7 @@ public class URLDownloader {
         return theJob.getUrlsForJob();
     }
 
-    public static void startJobs() {
+    public void startJobs() {
         Log.d(TAG, "startJobs");
         for (Job job : jobList) {
             if (! job.isRunning() && ! job.isCancelled() && ! job.isComplete()) {
@@ -57,7 +57,7 @@ public class URLDownloader {
         }
     }
 
-    public static void pauseJobs() {
+    public void pauseJobs() {
         Log.d(TAG, "pauseJobs");
         for (Job job : jobList) {
             if (job.isRunning()) {
@@ -66,7 +66,7 @@ public class URLDownloader {
         }
     }
 
-    public static void stopJobs() {
+    public void stopJobs() {
         Log.d(TAG, "stopJobs");
         for (Job job : jobList) {
             if (job.isRunning() || job.isPaused() || job.isQueued()) {
@@ -75,7 +75,7 @@ public class URLDownloader {
         }
     }
 
-    public static Job getJob(int jobId) {
+    public Job getJob(int jobId) {
         for (Job job : jobList) {
             if (job.getJobId() == jobId) {
                 return job;

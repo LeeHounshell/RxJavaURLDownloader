@@ -53,11 +53,11 @@ public class JobListActivityPresenter {
 
     public void pauseAllJobs(View v) {
         Log.d(TAG, "pauseJobs: -click=");
-        if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
+        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
             Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
         }
         else {
-            URLDownloader.pauseJobs();
+            URLDownloader.getInstance().pauseJobs();
             Toast.makeText(context, R.string.jobs_paused, Toast.LENGTH_SHORT).show();
             adapter.notifyDataSetChanged();
         }
@@ -65,11 +65,11 @@ public class JobListActivityPresenter {
 
     public void runAllJobs(View v) {
         Log.d(TAG, "runAllJobs");
-        if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
+        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
             Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
         }
         else {
-            URLDownloader.startJobs();
+            URLDownloader.getInstance().startJobs();
             Toast.makeText(context, R.string.jobs_running, Toast.LENGTH_SHORT).show();
             adapter.notifyDataSetChanged();
         }
@@ -77,11 +77,11 @@ public class JobListActivityPresenter {
 
     public void stopAllJobs(View v) {
         Log.d(TAG, "stopAllJobs");
-        if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
+        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
             Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
         }
         else {
-            URLDownloader.stopJobs();
+            URLDownloader.getInstance().stopJobs();
             Toast.makeText(context, R.string.jobs_stopped, Toast.LENGTH_SHORT).show();
             adapter.notifyDataSetChanged();
         }

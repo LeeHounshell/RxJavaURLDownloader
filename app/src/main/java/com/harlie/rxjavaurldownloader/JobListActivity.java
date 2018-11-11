@@ -28,7 +28,7 @@ public class JobListActivity extends BaseActivity {
         jobListRecyclerView.setHasFixedSize(true);
         jobListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        JobListAdapter jobListAdapter = new JobListAdapter(this, URLDownloader.getAllJobs());
+        JobListAdapter jobListAdapter = new JobListAdapter(this, URLDownloader.getInstance().getAllJobs());
         jobListRecyclerView.setAdapter(jobListAdapter);
         JobListActivityPresenter jobListActivityPresenter = new JobListActivityPresenter(this, jobListAdapter);
         binding.setPresenter(jobListActivityPresenter);

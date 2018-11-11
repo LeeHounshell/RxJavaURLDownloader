@@ -134,7 +134,7 @@ public class MainActivityPresenter {
         if (foundSelectedUrl) {
             Log.d(TAG, "queue the selectedUrls to URL Downloader Library");
             int callbackKey = ++sCallback;
-            Job job = URLDownloader.createJob(selectedUrls, TIME_OUT, RETRY_LIMIT, callbackKey);
+            Job job = URLDownloader.getInstance().createJob(selectedUrls, TIME_OUT, RETRY_LIMIT, callbackKey);
             if (job == null) {
                 Toast.makeText(context, R.string.job_failed, Toast.LENGTH_SHORT).show();
                 return;
@@ -153,7 +153,7 @@ public class MainActivityPresenter {
 
     public void manageJobList(View v) {
         Log.d(TAG, "manageJobList");
-        if (URLDownloader.getAllJobs() == null || URLDownloader.getAllJobs().size() == 0) {
+        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
             Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
         }
         else {

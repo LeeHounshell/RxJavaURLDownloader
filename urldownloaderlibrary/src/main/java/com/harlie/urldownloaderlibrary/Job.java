@@ -140,7 +140,7 @@ public class Job implements IJobInterface {
         String info = "";
         if (context != null) {
             Resources resources = context.getResources();
-            Job job = URLDownloader.getJob(jobId);
+            Job job = URLDownloader.getInstance().getJob(jobId);
             if (alsoGetJobName) {
                 info = getJobName(context) + "\n";
             }
