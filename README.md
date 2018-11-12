@@ -21,11 +21,10 @@ URL Downloader Library
 
 ## Description
 
-File downloading and the job work queue are genericly handled by the AAR: URLDownloaderLibrary
-This is the "heavy-lifter" responsible for doing all the real work of managing the downloads.
+File downloading and the job work queue are generically handled by the AAR: URLDownloaderLibrary This is the "heavy-lifter" responsible for doing all the real work of managing the downloads.
 When a job is run, all URLs in that job download using RxJava and Retrofit.
-Multiple jobs run concurrently.  Jobs emit a callback event on completion.
-The callback is emitted on the Green Robot Event Bus.  See http://greenrobot.org/eventbus/
+Multiple jobs run concurrently.  Jobs emit a callback event on completion via the Event Bus.
+The callback includes a map of urls and each url result. See http://greenrobot.org/eventbus/
 Library users that want to intercept the callback need to Subscribe to the event like this:
 
 ```
