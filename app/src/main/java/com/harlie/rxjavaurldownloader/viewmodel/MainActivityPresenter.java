@@ -28,7 +28,7 @@ import static com.harlie.rxjavaurldownloader.model.AlbumUrl.AlbumUrlStatus.UNSEL
 public class MainActivityPresenter {
     static final String TAG = "LEE: " + MainActivityPresenter.class.getSimpleName();
 
-    public static int TIME_OUT = 30000;
+    public static int TIME_OUT = 30; // seconds
     public static int RETRY_LIMIT = 4;
 
     private static int sCallback;

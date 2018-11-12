@@ -4,7 +4,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Job implements IJobInterface {
@@ -19,25 +25,31 @@ public class Job implements IJobInterface {
         JOB_CANCELLED
     }
 
-    private static volatile int sLastJobNumber;
+    private static volatile int sLastJobNumber = 0;
+
+    private JobState jobState;
+    private List<String> urlList;
+    private IJobQueue jobQueue;
+    private Timer timer;
 
     private int jobId;
-    private List<String> urlList;
     private int timeOut;
     private int numberRetrys;
+    private int numberFailures;
     private int callbackKey;
-    private JobState jobState;
-    private IJobQueue jobQueue;
+    private int backoffSeconds = 2;
+    private final Object jobLock = new Object();
 
 
     public Job(List<String> urlList, int timeOut, int numberRetrys, int callbackKey) {
         this.urlList = urlList;
         this.timeOut = timeOut;
         this.numberRetrys = numberRetrys;
+        this.numberFailures = 0;
         this.callbackKey = callbackKey;
-        this.jobQueue = new JobQueueImpl();
         this.jobId = ++sLastJobNumber;
         this.jobState = JobState.JOB_CREATED;
+        this.jobQueue = new JobQueueImpl(this);
     }
 
     public List<String> getUrlsForJob() {
@@ -46,27 +58,129 @@ public class Job implements IJobInterface {
     }
 
     @Override
-    public void start() {
+    public boolean start() {
         Log.d(TAG, "start");
-        jobQueue.start(this);
+        if (getNumberFailures() >= getNumberRetrys()) {
+            Log.w(TAG, "max retrys reached for job=" + this);
+            return false;
+        }
+        if (jobState == JobState.JOB_CREATED) {
+            Log.d(TAG, "start: create Thread for job");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    jobQueue.start(jobLock);
+                }
+            }).start();
+            waitForJobStartup();
+            return true;
+        }
+        else if (jobState == JobState.JOB_PAUSED) {
+            Log.d(TAG, "start: unpause job");
+            jobQueue.unpause();
+        }
+        else {
+            Log.e(TAG, "got Job start() but job is not in state JOB_CREATED or JOB_PAUSED");
+        }
+        return false;
+    }
+
+    private void waitForJobStartup() {
+        Log.d(TAG, "waitForJobStartup");
+        while (jobState == JobState.JOB_CREATED) {
+            try {
+                Log.d(TAG, "waitForJobStartup: wait");
+                synchronized (jobLock) {
+                    jobLock.wait();
+                }
+                Log.d(TAG, "waitForJobStartup: resume execution");
+            } catch (InterruptedException e) {
+                Log.e(TAG, "INTERRUPTED: waitForJobStartup, e=" + e);
+            }
+        }
+        Log.d(TAG, "waitForJobStartup: done");
+    }
+
+    class RerunJobTask extends TimerTask {
+        public void run() {
+            timer.cancel();
+            Log.d(TAG, "time to retry the job=" + this);
+            start();
+        }
+    }
+
+    public void retryAfterBackoff() {
+        backoffSeconds *= 2; // use exponential backoff
+        Log.d(TAG, "retryAfterBackoff: backoffSeconds=" + backoffSeconds);
+        timer = new Timer();
+        timer.schedule(new RerunJobTask(), backoffSeconds * 1000);
     }
 
     @Override
-    public void pause() {
+    public boolean pause() {
         Log.d(TAG, "pause");
-        jobQueue.pause();
+        if (jobState == JobState.JOB_RUNNING) {
+            jobQueue.pause();
+            return true;
+        }
+        else {
+            Log.e(TAG, "got Job pause() but job is not in state JOB_RUNNING");
+        }
+        return false;
     }
 
     @Override
-    public void unpause() {
+    public boolean unpause() {
         Log.d(TAG, "unpause");
-        jobQueue.unpause();
+        if (jobState == JobState.JOB_PAUSED) {
+            jobQueue.unpause();
+            return true;
+        }
+        else {
+            Log.e(TAG, "got Job unpause() but job is not in state JOB_PAUSED");
+        }
+        return false;
+    }
+
+    public class URLDownloaderJobCompletionEvent {
+        private Job job;
+        private Map<String, UrlResult> resultMap;
+
+        public URLDownloaderJobCompletionEvent(Job job, Map<String, UrlResult> resultMap) {
+            this.job = job;
+            this.resultMap = resultMap;
+        }
+
+        public Job getJob() {
+            return job;
+        }
+
+        public Map<String, UrlResult> getResultMap() {
+            return resultMap;
+        }
     }
 
     @Override
-    public void cancel() {
+    public boolean complete() {
+        Log.d(TAG, "===> complete <===");
+        Map<String, UrlResult> resultMap = jobQueue.getUrlResultMap();
+        resultMap.putAll(jobQueue.getUrlCompleteMap()); // overlay with SHA-1 completion
+        URLDownloaderJobCompletionEvent completionEvent = new URLDownloaderJobCompletionEvent(Job.this, resultMap);
+        EventBus.getDefault().post(completionEvent); // implement callback using EventBus
+        return true;
+    }
+
+    @Override
+    public boolean cancel() {
         Log.d(TAG, "cancel");
-        jobQueue.cancel();
+        if (jobState != JobState.JOB_COMPLETE && jobState != JobState.JOB_CANCELLED) {
+            jobQueue.cancel();
+            return true;
+        }
+        else {
+            Log.e(TAG, "got Job cancel() but job is already JOB_COMPLETE or JOB_CANCELLED");
+        }
+        return false;
     }
 
     @Override
@@ -119,6 +233,14 @@ public class Job implements IJobInterface {
         return numberRetrys;
     }
 
+    public int getNumberFailures() {
+        return numberFailures;
+    }
+
+    public void incrementDownloadFailCount() {
+        ++numberFailures;
+    }
+
     public int getCallbackKey() {
         return callbackKey;
     }
@@ -134,6 +256,11 @@ public class Job implements IJobInterface {
             name = resources.getString(R.string.job_id) + ": " + jobId;
         }
         return name;
+    }
+
+    public IJobQueue getJobQueue() {
+        Log.d(TAG, "getJobQueue");
+        return jobQueue;
     }
 
     public String getJobInfo(Context context, boolean alsoGetJobName) {

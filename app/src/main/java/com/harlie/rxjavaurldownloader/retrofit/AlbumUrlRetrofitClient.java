@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AlbumUrlRetrofitClient {
     private static Retrofit retrofit;
 
-    public static Retrofit getInstance(String url) {
+    public static Retrofit getRetrofit(String url) {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(url)
@@ -20,7 +20,7 @@ public class AlbumUrlRetrofitClient {
         return retrofit;
     }
 
-    // force using getInstance
+    // force using getRetrofit
     private AlbumUrlRetrofitClient() {
     }
 }

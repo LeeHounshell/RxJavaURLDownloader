@@ -1,10 +1,12 @@
 package com.harlie.urldownloaderlibrary;
 
 public interface IJobInterface {
-    void start();
-    void pause();
-    void unpause();
-    void cancel();
+    boolean start();
+    boolean pause();
+    boolean unpause();
+    boolean cancel();
+    boolean complete();
+
     boolean isCreated();
     boolean isQueued();
     boolean isRunning();

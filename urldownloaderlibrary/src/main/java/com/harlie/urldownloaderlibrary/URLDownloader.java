@@ -52,7 +52,12 @@ public class URLDownloader {
         Log.d(TAG, "startJobs");
         for (Job job : jobList) {
             if (! job.isRunning() && ! job.isCancelled() && ! job.isComplete()) {
+                Log.d(TAG, "startJobs: job.start");
                 job.start();
+            }
+            if (job.isPaused()) {
+                Log.d(TAG, "startJobs: job.unpause");
+                job.unpause();
             }
         }
     }

@@ -142,7 +142,9 @@ public class JobManagementDialog
             case JOB_CREATED:
             case JOB_QUEUED:
                 Log.d(TAG, "runPauseResumeJob: run job");
-                job.start();
+                if (! job.start()) {
+                    Log.w(TAG, "failed to start job=" + job);
+                }
                 break;
             case JOB_RUNNING:
                 Log.d(TAG, "runPauseResumeJob: pause job");

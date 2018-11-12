@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        Retrofit retrofit = AlbumUrlRetrofitClient.getInstance(ALBUM_WEBSERVER_URL);
+        Retrofit retrofit = AlbumUrlRetrofitClient.getRetrofit(ALBUM_WEBSERVER_URL);
         myAlbumUrlApi = retrofit.create(IMyAlbumUrlApi.class);
 
         albumUrlRecyclerView = findViewById(R.id.album_url_recyclerview);
