@@ -7,10 +7,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.harlie.rxjavaurldownloader.BaseActivity;
+import com.harlie.rxjavaurldownloader.JobListActivity;
 import com.harlie.rxjavaurldownloader.R;
+import com.harlie.rxjavaurldownloader.service.UrlDownloaderRequestDownloadService;
 import com.harlie.rxjavaurldownloader.util.JobManagementDialog;
 import com.harlie.urldownloaderlibrary.Job;
 import com.harlie.urldownloaderlibrary.URLDownloader;
+
+import org.greenrobot.eventbus.Subscribe;
 
 
 public class JobListActivityPresenter {
@@ -53,37 +57,31 @@ public class JobListActivityPresenter {
 
     public void pauseAllJobs(View v) {
         Log.d(TAG, "pauseJobs: -click=");
-        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
-        }
-        else {
-            URLDownloader.getInstance().pauseJobs();
-            Toast.makeText(context, R.string.jobs_paused, Toast.LENGTH_SHORT).show();
-            adapter.notifyDataSetChanged();
-        }
+        UrlDownloaderRequestDownloadService.startActionPauseJobs(context);
     }
 
     public void runAllJobs(View v) {
         Log.d(TAG, "runAllJobs");
-        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
-        }
-        else {
-            URLDownloader.getInstance().startJobs();
-            Toast.makeText(context, R.string.jobs_running, Toast.LENGTH_SHORT).show();
-            adapter.notifyDataSetChanged();
-        }
+        UrlDownloaderRequestDownloadService.startActionStartJobs(context);
     }
 
     public void stopAllJobs(View v) {
         Log.d(TAG, "stopAllJobs");
-        if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(context, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
-        }
-        else {
-            URLDownloader.getInstance().stopJobs();
-            Toast.makeText(context, R.string.jobs_stopped, Toast.LENGTH_SHORT).show();
-            adapter.notifyDataSetChanged();
+        UrlDownloaderRequestDownloadService.startActionStopJobs(context);
+    }
+
+    @Subscribe
+    public void onEvent(UrlDownloaderRequestDownloadService.NotifyDataSetEvent notifyEvent) {
+        Log.d(TAG, "---------> onEvent <--------- notifyEvent=" + notifyEvent);
+        if (context instanceof JobListActivity) {
+            JobListActivity jobListActivity = (JobListActivity) context;
+            jobListActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "onEvent: got service notifyEvent");
+                    adapter.notifyDataSetChanged();
+                }
+            });
         }
     }
 
