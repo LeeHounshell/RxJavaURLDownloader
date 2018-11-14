@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.harlie.rxjavaurldownloader.BaseActivity;
 import com.harlie.rxjavaurldownloader.JobListActivity;
@@ -12,7 +11,6 @@ import com.harlie.rxjavaurldownloader.R;
 import com.harlie.rxjavaurldownloader.service.UrlDownloaderRequestDownloadService;
 import com.harlie.rxjavaurldownloader.util.JobManagementDialog;
 import com.harlie.urldownloaderlibrary.Job;
-import com.harlie.urldownloaderlibrary.URLDownloader;
 
 import org.greenrobot.eventbus.Subscribe;
 

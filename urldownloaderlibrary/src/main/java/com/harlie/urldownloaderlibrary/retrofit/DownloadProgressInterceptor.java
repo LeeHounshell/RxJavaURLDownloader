@@ -2,11 +2,9 @@ package com.harlie.urldownloaderlibrary.retrofit;
 
 import android.util.Log;
 
-import com.harlie.urldownloaderlibrary.Job;
-import com.harlie.urldownloaderlibrary.UrlResult;
+import com.harlie.urldownloaderlibrary.IJobQueue;
 
 import java.io.IOException;
-import java.util.Map;
 
 import okhttp3.Interceptor;
 
@@ -16,13 +14,13 @@ public class DownloadProgressInterceptor implements Interceptor {
     static final String TAG = "LEE: " + DownloadProgressInterceptor.class.getSimpleName();
 
     private DownloadProgressListener listener;
-    private Map<String, UrlResult> urlResultMap;
+    private IJobQueue jobQueue;
     private String url;
 
 
-    public DownloadProgressInterceptor(DownloadProgressListener listener, Map<String,UrlResult> urlResultMap, String url) {
+    public DownloadProgressInterceptor(DownloadProgressListener listener, IJobQueue jobQueue, String url) {
         this.listener = listener;
-        this.urlResultMap = urlResultMap;
+        this.jobQueue = jobQueue;
         this.url = url;
     }
 
@@ -31,8 +29,10 @@ public class DownloadProgressInterceptor implements Interceptor {
         Log.d(TAG, "intercept");
         okhttp3.Response originalResponse = chain.proceed(chain.request());
 
-        return originalResponse.newBuilder()
-                .body(new DownloadProgressResponseBody(originalResponse.body(), listener, urlResultMap, chain.request().url().toString()))
+        DownloadProgressResponseBody responseBody = new DownloadProgressResponseBody(originalResponse.body(), listener, jobQueue, chain.request().url().toString());
+        okhttp3.Response response = originalResponse.newBuilder()
+                .body(responseBody)
                 .build();
+        return response;
     }
 }

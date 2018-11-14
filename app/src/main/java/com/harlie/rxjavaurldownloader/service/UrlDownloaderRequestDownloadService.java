@@ -1,20 +1,15 @@
 package com.harlie.rxjavaurldownloader.service;
 
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.harlie.rxjavaurldownloader.R;
-import com.harlie.rxjavaurldownloader.RxJavaUrlDownloaderApplication;
-import com.harlie.rxjavaurldownloader.viewmodel.JobListAdapter;
-import com.harlie.urldownloaderlibrary.Job;
 import com.harlie.urldownloaderlibrary.URLDownloader;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.List;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

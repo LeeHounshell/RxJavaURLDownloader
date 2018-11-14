@@ -2,11 +2,10 @@ package com.harlie.urldownloaderlibrary.retrofit;
 
 import android.util.Log;
 
-import com.harlie.urldownloaderlibrary.UrlResult;
+import com.harlie.urldownloaderlibrary.IJobQueue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -22,7 +21,7 @@ public class JobRunnerRetrofitClient {
     private static URL oldUrl;
 
 
-    public static Retrofit getRetrofit(String url, DownloadProgressListener listener, long timeOut, Map<String, UrlResult> urlResultMap) {
+    public static Retrofit getRetrofit(String url, DownloadProgressListener listener, long timeOut, IJobQueue jobQueue) {
         Log.d(TAG, "getRetrofit: url=" + url);
         if (retrofit == null) {
             try {
@@ -32,7 +31,7 @@ public class JobRunnerRetrofitClient {
                 Log.e(TAG, "Invalid URL: " + url + ", e=" + e);
                 return null;
             }
-            createRetrofit(url, listener, timeOut, urlResultMap);
+            createRetrofit(url, listener, timeOut, jobQueue);
         }
         else {
             URL newWorkingUrl;
@@ -52,15 +51,15 @@ public class JobRunnerRetrofitClient {
             else {
                 Log.d(TAG, "host is changed, create a new retrofit client");
                 workingUrl = newWorkingUrl;
-                createRetrofit(url, listener, timeOut, urlResultMap);
+                createRetrofit(url, listener, timeOut, jobQueue);
             }
         }
         return retrofit;
     }
 
-    private static void createRetrofit(String url, DownloadProgressListener listener, long timeOut, Map<String, UrlResult> urlResultMap) {
+    private static void createRetrofit(String url, DownloadProgressListener listener, long timeOut, IJobQueue jobQueue) {
         Log.d(TAG, "createRetrofit: url=" + url);
-        DownloadProgressInterceptor interceptor = new DownloadProgressInterceptor(listener, urlResultMap, url);
+        DownloadProgressInterceptor interceptor = new DownloadProgressInterceptor(listener, jobQueue, url);
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .addNetworkInterceptor(interceptor)

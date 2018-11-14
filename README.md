@@ -15,6 +15,8 @@ Press the "Create a Job" button to add the set of selected items into a new job 
 Items can only be placed into a single job queue and can not be reselected for another.
 After all desired job sets are created, press "Manage Jobs" to manage to the jobs queue.
 
+From the Android Studio console, filter on "LEE:" to view debug output and results.
+
 
 URL Downloader Library
 ======================

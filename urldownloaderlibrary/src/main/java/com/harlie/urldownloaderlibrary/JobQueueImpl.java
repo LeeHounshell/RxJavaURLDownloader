@@ -14,6 +14,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +26,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
+import okio.ByteString;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -31,8 +35,8 @@ class JobQueueImpl implements IJobQueue {
     static final String TAG = "LEE: " + JobQueueImpl.class.getSimpleName();
 
     private Job job;
-    private Map<String, UrlResult> urlResultMap;
-    private Map<String, UrlResult> urlCompleteMap;
+    private volatile Map<String, UrlResult> urlResultMap;
+    private volatile Map<String, UrlResult> urlCompleteMap;
     private List<Disposable> disposables;
     private final Object lock = new Object();
 
@@ -67,14 +71,6 @@ class JobQueueImpl implements IJobQueue {
     private void startTheJob() {
         Log.d(TAG, "startTheJob");
         if (job != null && ! job.isCancelled() && ! job.isComplete()) {
-            if (job.isPaused()) {
-                Log.d(TAG, "startTheJob: job is paused");
-                waitForJobUnpause();
-            }
-            if (job.isCancelled()) {
-                Log.d(TAG, "startTheJob: job is cancelled");
-                return;
-            }
             job.setJobState(Job.JobState.JOB_RUNNING);
             for (String url : job.getUrlList()) {
                 if (job.isPaused()) {
@@ -104,7 +100,7 @@ class JobQueueImpl implements IJobQueue {
                                 //TODO: report download progress
                             }
                         };
-                        Retrofit downloader = JobRunnerRetrofitClient.getRetrofit(theBaseUrl, listener, job.getTimeOut(), urlResultMap);
+                        Retrofit downloader = JobRunnerRetrofitClient.getRetrofit(theBaseUrl, listener, job.getTimeOut(), this);
                         if (downloader != null) {
                             startDownload(downloader, url, getPathFromUrl(theBaseUrl, url));
                         }
@@ -139,9 +135,11 @@ class JobQueueImpl implements IJobQueue {
                     public void accept(Response<ResponseBody> response) throws Exception {
                         Log.d(TAG, "accept: response=" + response + ", success=" + response.isSuccessful());
                         if (response.isSuccessful()) {
+                            UrlResult urlResult = job.getJobQueue().getUrlResultMap().get(url);
+                            Log.d(TAG, "accept: urlResult=" + urlResult);
                             ResponseBody responseBody = response.body();
-                            saveResponseAsFile(responseBody, url);
-                            completeDownloadForUrl(url);
+                            byte[] sha1 = saveResponseAsFile(responseBody, url);
+                            completeDownloadForUrl(url, sha1);
                         }
                         else {
                             Log.e(TAG, "DOWNLOAD FAILED!");
@@ -160,25 +158,31 @@ class JobQueueImpl implements IJobQueue {
         disposables.add(disposable);
     }
 
-    private void completeDownloadForUrl(String url) {
+    private void completeDownloadForUrl(String url, byte[] sha1) {
         Log.d(TAG, "---> completeDownloadForUrl <--- url=" + url);
         UrlResult urlResult = urlResultMap.get(url);
         if (urlResult != null) {
+            if (urlResult.getSha1() == null && sha1 != null) {
+                Log.d(TAG, "===> set the SHA-1 <===");
+                urlResult.setSha1(sha1);
+            }
+            Log.d(TAG, "found the UrlResult for url");
             urlResultMap.remove(url);
+            urlResult.setResultCompleted();
             urlCompleteMap.put(url, urlResult);
             if (urlResultMap.size() == 0) {
-                Log.d(TAG, "===> JOB COMPLETE!");
-                job.setJobState(Job.JobState.JOB_COMPLETE);
+                Log.d(TAG, "===> ALL URLs DOWNLOADED! JOB COMPLETE!");
                 complete();
             }
         }
         else {
-            Log.e(TAG, "did not find url in urlResultMap! url=" + url);
+            Log.e(TAG, "*** did not find url in urlResultMap! url=" + url);
         }
     }
 
-    private boolean saveResponseAsFile(ResponseBody body, String url) {
+    private byte[] saveResponseAsFile(ResponseBody body, String url) {
         Log.d(TAG, "saveResponseAsFile: url=" + url);
+        byte[] sha1 = null;
         try {
             final File theFile = File.createTempFile("download_", Long.toString(System.nanoTime()));
             UrlResult urlResult = getUrlResultMap().get(url);
@@ -187,13 +191,21 @@ class JobQueueImpl implements IJobQueue {
             Log.d(TAG, "urlResult=" + urlResult);
             InputStream inputStream = null;
             OutputStream outputStream = null;
-
+            MessageDigest md = null;
+            boolean need2CalcSha1 = false;
+            boolean error = false;
+            if (urlResult.getSha1() == null) {
+                need2CalcSha1 = true;
+            }
             try {
                 byte[] fileReader = new byte[4096];
                 long fileSize = body.contentLength();
                 long fileSizeDownloaded = 0;
                 inputStream = body.byteStream();
                 outputStream = new FileOutputStream(theFile);
+                if (need2CalcSha1) {
+                    md = MessageDigest.getInstance("SHA1");
+                }
 
                 while (true) {
                     //TODO: add handling of JOB_PAUSED and JOB_CANCELLED
@@ -201,30 +213,42 @@ class JobQueueImpl implements IJobQueue {
                     if (read == -1) {
                         break;
                     }
+                    if (md != null) {
+                        md.update(fileReader);
+                    }
                     outputStream.write(fileReader, 0, read);
                     fileSizeDownloaded += read;
                     Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
                 }
                 outputStream.flush();
                 Log.d(TAG, "===> file saved as " + theFile.getAbsolutePath());
-                return true;
             } catch (FileNotFoundException e) {
+                error = true;
                 Log.w(TAG, "save failed, got FileNotFoundException e=" + e);
             } catch (IOException e) {
+                error = true;
                 Log.w(TAG, "save failed, got IOException e=" + e);
-                return false;
+            } catch (NoSuchAlgorithmException e) {
+                error = true;
+                Log.w(TAG, "save failed, got SHA1 NoSuchAlgorithmException e=" + e);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
                 }
                 if (outputStream != null) {
+                    outputStream.flush();
                     outputStream.close();
                 }
+                if (! error && md != null) {
+                    sha1 = md.digest();
+                    Log.d(TAG, "after save: the SHA-1=" + sha1);
+                }
+                return sha1;
             }
         } catch (IOException e) {
             Log.w(TAG, "file save failed, got IOException e=" + e);
         }
-        return false;
+        return sha1;
     }
 
     private void waitForJobUnpause() {
@@ -245,13 +269,14 @@ class JobQueueImpl implements IJobQueue {
 
     @Override
     public void pause() {
+        Log.d(TAG, "-> pause <-");
         job.setJobState(Job.JobState.JOB_PAUSED);
         Log.d(TAG, "pause: job=" + job);
     }
 
     @Override
     public void unpause() {
-        Log.d(TAG, "unpause");
+        Log.d(TAG, "-> unpause <-");
         job.setJobState(Job.JobState.JOB_RUNNING);
         synchronized (lock) {
             lock.notify();
@@ -262,17 +287,19 @@ class JobQueueImpl implements IJobQueue {
 
     @Override
     public void complete() {
+        Log.d(TAG, "-> complete <-");
         job.setJobState(Job.JobState.JOB_COMPLETE);
+        job.complete();
         Log.d(TAG, "complete: job=" + job);
         for (Disposable disposable : disposables) {
             disposable.dispose();
         }
         disposables.clear();
-        job.complete();
     }
 
     @Override
     public void cancel() {
+        Log.d(TAG, "-> cancel <-");
         job.setJobState(Job.JobState.JOB_CANCELLED);
         for (String url : urlResultMap.keySet()) {
             UrlResult urlResult = urlResultMap.get(url);

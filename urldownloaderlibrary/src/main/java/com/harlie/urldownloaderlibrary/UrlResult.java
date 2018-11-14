@@ -2,8 +2,7 @@ package com.harlie.urldownloaderlibrary;
 
 import android.util.Log;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
 
 import okio.ByteString;
 
@@ -12,6 +11,7 @@ public class UrlResult {
     static final String TAG = "LEE: " + UrlResult.class.getSimpleName();
 
     enum Result {
+        URL_CREATED,
         URL_FAILED,
         URL_CANCELLED,
         URL_COMPLETED
@@ -19,7 +19,7 @@ public class UrlResult {
 
     private String url;
     private String theFilePath;
-    private ByteString sha1;
+    private String sha1;
     private int retryCount;
     private Result result;
 
@@ -29,7 +29,7 @@ public class UrlResult {
         this.theFilePath = null;
         this.retryCount = 0;
         this.sha1 = null;
-        setResultFail(); // job not even started yet
+        this.result = Result.URL_CREATED;
     }
 
     public String getUrl() {
@@ -71,12 +71,16 @@ public class UrlResult {
         this.result = Result.URL_COMPLETED;
     }
 
-    public ByteString getSha1() {
+    public String getSha1() {
         return sha1;
     }
 
-    public void setSha1(ByteString sha1) {
-        this.sha1 = sha1;
+    public void setSha1(byte[] sha1) {
+        Formatter formatter = new Formatter();
+        for (byte b : sha1) {
+            formatter.format("%02x", b);
+        }
+        this.sha1 = formatter.toString();
     }
 
     @Override

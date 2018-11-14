@@ -3,7 +3,7 @@ package com.harlie.urldownloaderlibrary;
 
 import java.util.Map;
 
-interface IJobQueue {
+public interface IJobQueue {
     void start(Object lock);
     void pause();
     void unpause();
