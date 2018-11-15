@@ -90,9 +90,6 @@ public class JobListActivityPresenter {
             case JOB_CREATED:
                 color = resources.getColor(R.color.color_JOB_CREATED);
                 break;
-            case JOB_QUEUED:
-                color = resources.getColor(R.color.color_JOB_QUEUED);
-                break;
             case JOB_RUNNING:
                 color = resources.getColor(R.color.color_JOB_RUNNING);
                 break;

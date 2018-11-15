@@ -95,10 +95,6 @@ public class JobManagementDialog
                 runPauseResumeJobButton.setText(dialog.getResources().getString(R.string.run_job));
                 cancelJobButton.setVisibility(View.GONE);
                 break;
-            case JOB_QUEUED:
-                runPauseResumeJobButton.setText(dialog.getResources().getString(R.string.run_job));
-                cancelJobButton.setText(dialog.getResources().getString(R.string.cancel_job));
-                break;
             case JOB_RUNNING:
                 runPauseResumeJobButton.setText(dialog.getResources().getString(R.string.pause_job));
                 cancelJobButton.setText(dialog.getResources().getString(R.string.cancel_job));
@@ -140,7 +136,6 @@ public class JobManagementDialog
         Log.d(TAG, "runPauseResumeJob: -click-");
         switch (job.getJobState()) {
             case JOB_CREATED:
-            case JOB_QUEUED:
                 Log.d(TAG, "runPauseResumeJob: run job");
                 if (! job.start()) {
                     Log.w(TAG, "failed to start job=" + job);
@@ -170,13 +165,19 @@ public class JobManagementDialog
 
     private void notifyDataSetChanged() {
         if (adapter != null) {
-            baseActivity.runOnUiThread(new Runnable() {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "notifyDataSetChanged");
-                    adapter.notifyDataSetChanged();
+                    baseActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "notifyDataSetChanged");
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                 }
-            });
+            }, 1500);
         }
         else {
             Log.w(TAG, "notifyDataSetChanged: the adapter is null!");

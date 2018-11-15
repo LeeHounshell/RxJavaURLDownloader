@@ -74,7 +74,7 @@ public class URLDownloader {
     public void stopJobs() {
         Log.d(TAG, "stopJobs");
         for (Job job : jobList) {
-            if (job.isRunning() || job.isPaused() || job.isQueued()) {
+            if (job.isRunning() || job.isPaused()) {
                 job.cancel();
             }
         }

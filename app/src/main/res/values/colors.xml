@@ -15,7 +15,6 @@
     <color name="color_CANCELLED">@android:color/holo_orange_dark</color>
 
     <color name="color_JOB_CREATED">@android:color/white</color>
-    <color name="color_JOB_QUEUED">@android:color/holo_green_light</color>
     <color name="color_JOB_RUNNING">@android:color/holo_purple</color>
     <color name="color_JOB_PAUSED">@android:color/holo_red_light</color>
     <color name="color_JOB_COMPLETE">@android:color/holo_blue_light</color>

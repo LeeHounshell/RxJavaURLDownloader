@@ -17,7 +17,6 @@ public class Job implements IJobInterface {
 
     public enum JobState {
         JOB_CREATED,
-        JOB_QUEUED,
         JOB_RUNNING,
         JOB_PAUSED,
         JOB_COMPLETE,
@@ -185,11 +184,6 @@ public class Job implements IJobInterface {
     @Override
     public boolean isCreated() {
         return jobState == JobState.JOB_CREATED;
-    }
-
-    @Override
-    public boolean isQueued() {
-        return jobState == JobState.JOB_QUEUED;
     }
 
     @Override

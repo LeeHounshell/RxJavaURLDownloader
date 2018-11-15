@@ -81,14 +81,13 @@ public class DownloadProgressResponseBody extends ResponseBody {
                         Log.d(TAG, "read: jobQueue.getUrlResultMap().get(" + url + ");");
                         UrlResult urlResult = jobQueue.getUrlResultMap().get(url);
                         if (urlResult == null) {
-                            Log.w(TAG, "read: the urlResult is null! url=" + url);
+                            Log.w(TAG, "*** read: the urlResult is null! url=" + url);
                             urlResult = new UrlResult(url);
-                            jobQueue.getUrlResultMap().put(url, urlResult);
                         }
                         ByteString sha1 = sink.sha1();
                         Log.d(TAG, "read: setSha1 in urlResultMap: sha1=" + sha1);
                         urlResult.setSha1(sha1.toByteArray());
-                        urlResult.setResultCompleted();
+                        jobQueue.getUrlResultMap().put(url, urlResult);
                     }
                     else {
                         Log.w(TAG, "read: the jobQueue is null! can't set SHA-1");

@@ -49,7 +49,7 @@ public class JobRunnerRetrofitClient {
                 Log.d(TAG, "host is unchanged, reuse the old retrofit client");
             }
             else {
-                Log.d(TAG, "host is changed, create a new retrofit client");
+                Log.d(TAG, "*** *** *** host is changed, create a new retrofit client");
                 workingUrl = newWorkingUrl;
                 createRetrofit(url, listener, timeOut, jobQueue);
             }
@@ -58,7 +58,7 @@ public class JobRunnerRetrofitClient {
     }
 
     private static void createRetrofit(String url, DownloadProgressListener listener, long timeOut, IJobQueue jobQueue) {
-        Log.d(TAG, "createRetrofit: url=" + url);
+        Log.d(TAG, "===> createRetrofit: url=" + url + " <===");
         DownloadProgressInterceptor interceptor = new DownloadProgressInterceptor(listener, jobQueue, url);
 
         OkHttpClient client = new OkHttpClient.Builder()

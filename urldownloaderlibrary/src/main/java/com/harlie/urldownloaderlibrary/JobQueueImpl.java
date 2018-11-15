@@ -1,5 +1,6 @@
 package com.harlie.urldownloaderlibrary;
 
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.harlie.urldownloaderlibrary.retrofit.DownloadProgressListener;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -45,8 +47,8 @@ class JobQueueImpl implements IJobQueue {
         Log.d(TAG, "JobQueueImpl");
         job.setJobState(Job.JobState.JOB_CREATED);
         this.job = job;
-        this.urlResultMap = new HashMap<String, UrlResult>();
-        this.urlCompleteMap = new HashMap<String, UrlResult>();
+        this.urlResultMap = new ConcurrentHashMap<String, UrlResult>();
+        this.urlCompleteMap = new ConcurrentHashMap<String, UrlResult>();
         this.disposables = new ArrayList<Disposable>();
         new Thread(new Runnable() {
             @Override
@@ -135,11 +137,11 @@ class JobQueueImpl implements IJobQueue {
                     public void accept(Response<ResponseBody> response) throws Exception {
                         Log.d(TAG, "accept: response=" + response + ", success=" + response.isSuccessful());
                         if (response.isSuccessful()) {
-                            UrlResult urlResult = job.getJobQueue().getUrlResultMap().get(url);
-                            Log.d(TAG, "accept: urlResult=" + urlResult);
                             ResponseBody responseBody = response.body();
                             byte[] sha1 = saveResponseAsFile(responseBody, url);
                             completeDownloadForUrl(url, sha1);
+                            UrlResult urlResult = job.getJobQueue().getUrlResultMap().get(url);
+                            Log.d(TAG, "accept: urlResult=" + urlResult);
                         }
                         else {
                             Log.e(TAG, "DOWNLOAD FAILED!");
@@ -167,13 +169,17 @@ class JobQueueImpl implements IJobQueue {
                 urlResult.setSha1(sha1);
             }
             Log.d(TAG, "found the UrlResult for url");
-            urlResultMap.remove(url);
             urlResult.setResultCompleted();
             urlCompleteMap.put(url, urlResult);
-            if (urlResultMap.size() == 0) {
+            if (urlCompleteMap.size() >= getJob().getUrlList().size()) {
                 Log.d(TAG, "===> ALL URLs DOWNLOADED! JOB COMPLETE!");
                 complete();
             }
+            else {
+                int waiting4 = getJob().getUrlList().size() - urlCompleteMap.size();
+                Log.d(TAG, "Job waiting for " + waiting4 + " URL results. completed=" + urlCompleteMap.size() + ", total=" + getJob().getUrlList().size());
+            }
+            urlResultMap.remove(url);
         }
         else {
             Log.e(TAG, "*** did not find url in urlResultMap! url=" + url);
@@ -181,14 +187,13 @@ class JobQueueImpl implements IJobQueue {
     }
 
     private byte[] saveResponseAsFile(ResponseBody body, String url) {
-        Log.d(TAG, "saveResponseAsFile: url=" + url);
         byte[] sha1 = null;
         try {
             final File theFile = File.createTempFile("download_", Long.toString(System.nanoTime()));
             UrlResult urlResult = getUrlResultMap().get(url);
             urlResult.setTheFilePath(theFile.getAbsolutePath());
             getUrlResultMap().put(url, urlResult);
-            Log.d(TAG, "urlResult=" + urlResult);
+            Log.d(TAG, "saveResponseAsFile: url=" + url + ", filename=" + theFile.getAbsolutePath());
             InputStream inputStream = null;
             OutputStream outputStream = null;
             MessageDigest md = null;
@@ -233,11 +238,10 @@ class JobQueueImpl implements IJobQueue {
                 Log.w(TAG, "save failed, got SHA1 NoSuchAlgorithmException e=" + e);
             } finally {
                 if (inputStream != null) {
-                    inputStream.close();
+                    closeQuietly(inputStream);
                 }
                 if (outputStream != null) {
-                    outputStream.flush();
-                    outputStream.close();
+                    closeQuietly(outputStream);
                 }
                 if (! error && md != null) {
                     sha1 = md.digest();
@@ -249,6 +253,22 @@ class JobQueueImpl implements IJobQueue {
             Log.w(TAG, "file save failed, got IOException e=" + e);
         }
         return sha1;
+    }
+
+    static public void closeQuietly(InputStream is) {
+        if (is == null) return;
+        try {
+            is.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    static public void closeQuietly(OutputStream os) {
+        if (os == null) return;
+        try {
+            os.close();
+        } catch (Exception ignored) {
+        }
     }
 
     private void waitForJobUnpause() {

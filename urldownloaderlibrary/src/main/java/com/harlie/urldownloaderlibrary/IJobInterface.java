@@ -8,7 +8,6 @@ public interface IJobInterface {
     boolean complete();
 
     boolean isCreated();
-    boolean isQueued();
     boolean isRunning();
     boolean isPaused();
     boolean isComplete();
