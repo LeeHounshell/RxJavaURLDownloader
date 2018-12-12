@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.harlie.rxjavaurldownloader.databinding.ActivityJobListBinding;
+import com.harlie.rxjavaurldownloader.service.UrlDownloaderRequestDownloadService;
 import com.harlie.rxjavaurldownloader.viewmodel.JobListActivityPresenter;
 import com.harlie.rxjavaurldownloader.viewmodel.JobListAdapter;
 import com.harlie.urldownloaderlibrary.Job;
@@ -43,10 +44,24 @@ public class JobListActivity extends BaseActivity {
     }
 
     @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-        EventBus.getDefault().register(this); // register for EventBus events
-        super.onResume();
+    public void onStart() {
+        Log.d(TAG, "onStart");
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe
+    public void onEvent(UrlDownloaderRequestDownloadService.NotifyDataSetEvent notifyEvent) {
+        Log.d(TAG, "---------> onEvent <--------- notifyEvent action=" + notifyEvent.getAction());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "onEvent: NotifyDataSetEvent notifyDataSetChanged");
+                JobListAdapter jobListAdapter = (JobListAdapter) jobListRecyclerView.getAdapter();
+                jobListAdapter.setJobList(URLDownloader.getInstance().getAllJobs());
+                jobListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Subscribe
@@ -55,8 +70,10 @@ public class JobListActivity extends BaseActivity {
         JobListActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "onEvent: notifyDataSetChanged");
-                jobListRecyclerView.getAdapter().notifyDataSetChanged();
+                Log.d(TAG, "onEvent: JobCompletionEvent notifyDataSetChanged");
+                JobListAdapter jobListAdapter = (JobListAdapter) jobListRecyclerView.getAdapter();
+                jobListAdapter.setJobList(URLDownloader.getInstance().getAllJobs());
+                jobListAdapter.notifyDataSetChanged();
             }
         });
         Log.d(TAG, "job=" + completionEvent.getJob());
@@ -70,16 +87,24 @@ public class JobListActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-        EventBus.getDefault().unregister(this);
-        super.onPause();
+    @Subscribe
+    public void onEvent(Job.NotifyJobStateChangeEvent stateChangeEvent) {
+        Log.d(TAG, "---------> onEvent <--------- stateChangeEvent=" + stateChangeEvent.getJobState());
+        JobListActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "onEvent: StateChangeEvent notifyDataSetChanged");
+                JobListAdapter jobListAdapter = (JobListAdapter) jobListRecyclerView.getAdapter();
+                jobListAdapter.setJobList(URLDownloader.getInstance().getAllJobs());
+                jobListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop");
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
 

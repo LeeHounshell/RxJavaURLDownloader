@@ -1,6 +1,5 @@
 package com.harlie.urldownloaderlibrary;
 
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.harlie.urldownloaderlibrary.retrofit.DownloadProgressListener;
@@ -15,11 +14,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +25,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import okio.ByteString;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -68,6 +64,8 @@ class JobQueueImpl implements IJobQueue {
             Log.d(TAG, "start: notify job started");
             jobLock.notify();
         }
+        //--let UI thread work on updates--
+        Thread.yield();
     }
 
     private void startTheJob() {
@@ -155,6 +153,8 @@ class JobQueueImpl implements IJobQueue {
                                 job.retryAfterBackoff();
                             }
                         }
+                        //--let UI thread work on updates--
+                        Thread.yield();
                     }
                 });
         disposables.add(disposable);
@@ -191,63 +191,68 @@ class JobQueueImpl implements IJobQueue {
         try {
             final File theFile = File.createTempFile("download_", Long.toString(System.nanoTime()));
             UrlResult urlResult = getUrlResultMap().get(url);
-            urlResult.setTheFilePath(theFile.getAbsolutePath());
-            getUrlResultMap().put(url, urlResult);
-            Log.d(TAG, "saveResponseAsFile: url=" + url + ", filename=" + theFile.getAbsolutePath());
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-            MessageDigest md = null;
-            boolean need2CalcSha1 = false;
-            boolean error = false;
-            if (urlResult.getSha1() == null) {
-                need2CalcSha1 = true;
-            }
-            try {
-                byte[] fileReader = new byte[4096];
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-                inputStream = body.byteStream();
-                outputStream = new FileOutputStream(theFile);
-                if (need2CalcSha1) {
-                    md = MessageDigest.getInstance("SHA1");
+            if (urlResult != null) {
+                urlResult.setTheFilePath(theFile.getAbsolutePath());
+                getUrlResultMap().put(url, urlResult);
+                Log.d(TAG, "saveResponseAsFile: url=" + url + ", filename=" + theFile.getAbsolutePath());
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                MessageDigest md = null;
+                boolean need2CalcSha1 = false;
+                boolean error = false;
+                if (urlResult.getSha1() == null) {
+                    need2CalcSha1 = true;
                 }
+                try {
+                    byte[] fileReader = new byte[4096];
+                    long fileSize = body.contentLength();
+                    long fileSizeDownloaded = 0;
+                    inputStream = body.byteStream();
+                    outputStream = new FileOutputStream(theFile);
+                    if (need2CalcSha1) {
+                        md = MessageDigest.getInstance("SHA1");
+                    }
 
-                while (true) {
-                    //TODO: add handling of JOB_PAUSED and JOB_CANCELLED
-                    int read = inputStream.read(fileReader);
-                    if (read == -1) {
-                        break;
+                    while (true) {
+                        //TODO: add handling of JOB_PAUSED and JOB_CANCELLED
+                        int read = inputStream.read(fileReader);
+                        if (read == -1) {
+                            break;
+                        }
+                        if (md != null) {
+                            md.update(fileReader);
+                        }
+                        outputStream.write(fileReader, 0, read);
+                        fileSizeDownloaded += read;
+                        Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
                     }
-                    if (md != null) {
-                        md.update(fileReader);
+                    outputStream.flush();
+                    Log.d(TAG, "===> file saved as " + theFile.getAbsolutePath());
+                } catch (FileNotFoundException e) {
+                    error = true;
+                    Log.w(TAG, "save failed, got FileNotFoundException e=" + e);
+                } catch (IOException e) {
+                    error = true;
+                    Log.w(TAG, "save failed, got IOException e=" + e);
+                } catch (NoSuchAlgorithmException e) {
+                    error = true;
+                    Log.w(TAG, "save failed, got SHA1 NoSuchAlgorithmException e=" + e);
+                } finally {
+                    if (inputStream != null) {
+                        closeQuietly(inputStream);
                     }
-                    outputStream.write(fileReader, 0, read);
-                    fileSizeDownloaded += read;
-                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+                    if (outputStream != null) {
+                        closeQuietly(outputStream);
+                    }
+                    if (!error && md != null) {
+                        sha1 = md.digest();
+                        Log.d(TAG, "after save: the SHA-1=" + sha1);
+                    }
+                    return sha1;
                 }
-                outputStream.flush();
-                Log.d(TAG, "===> file saved as " + theFile.getAbsolutePath());
-            } catch (FileNotFoundException e) {
-                error = true;
-                Log.w(TAG, "save failed, got FileNotFoundException e=" + e);
-            } catch (IOException e) {
-                error = true;
-                Log.w(TAG, "save failed, got IOException e=" + e);
-            } catch (NoSuchAlgorithmException e) {
-                error = true;
-                Log.w(TAG, "save failed, got SHA1 NoSuchAlgorithmException e=" + e);
-            } finally {
-                if (inputStream != null) {
-                    closeQuietly(inputStream);
-                }
-                if (outputStream != null) {
-                    closeQuietly(outputStream);
-                }
-                if (! error && md != null) {
-                    sha1 = md.digest();
-                    Log.d(TAG, "after save: the SHA-1=" + sha1);
-                }
-                return sha1;
+            }
+            else {
+                Log.w(TAG, "unable to get the UrlResult for url=" + url);
             }
         } catch (IOException e) {
             Log.w(TAG, "file save failed, got IOException e=" + e);
@@ -292,6 +297,8 @@ class JobQueueImpl implements IJobQueue {
         Log.d(TAG, "-> pause <-");
         job.setJobState(Job.JobState.JOB_PAUSED);
         Log.d(TAG, "pause: job=" + job);
+        //--let UI thread work on updates--
+        Thread.yield();
     }
 
     @Override
@@ -303,6 +310,8 @@ class JobQueueImpl implements IJobQueue {
             Log.d(TAG, "unpause: did notify");
         }
         Log.d(TAG, "unpause: job=" + job);
+        //--let UI thread work on updates--
+        Thread.yield();
     }
 
     @Override
@@ -315,6 +324,8 @@ class JobQueueImpl implements IJobQueue {
             disposable.dispose();
         }
         disposables.clear();
+        //--let UI thread work on updates--
+        Thread.yield();
     }
 
     @Override
@@ -328,6 +339,8 @@ class JobQueueImpl implements IJobQueue {
         }
         urlResultMap.clear();
         Log.d(TAG, "cancel: job=" + job);
+        //--let UI thread work on updates--
+        Thread.yield();
     }
 
     @Override

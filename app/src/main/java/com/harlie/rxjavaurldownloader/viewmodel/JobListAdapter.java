@@ -47,4 +47,8 @@ public class JobListAdapter extends RecyclerView.Adapter<JobListViewHolder> {
     public List<Job> getJobList() {
         return jobList;
     }
+
+    public void setJobList(List<Job> jobList) {
+        this.jobList = jobList;
+    }
 }

@@ -25,11 +25,12 @@ public class Job implements IJobInterface {
 
     private static volatile int sLastJobNumber = 0;
 
-    private JobState jobState;
+    private volatile JobState jobState;
     private List<String> urlList;
     private IJobQueue jobQueue;
     private Timer timer;
 
+    private boolean isStarted = false;
     private int jobId;
     private int timeOut;
     private int numberRetrys;
@@ -62,8 +63,9 @@ public class Job implements IJobInterface {
             Log.w(TAG, "max retrys reached for job=" + this);
             return false;
         }
-        if (jobState == JobState.JOB_CREATED) {
+        if (jobState == JobState.JOB_CREATED || (! isStarted && jobState == JobState.JOB_PAUSED)) {
             Log.d(TAG, "start: create Thread for job");
+            isStarted = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -117,7 +119,7 @@ public class Job implements IJobInterface {
     @Override
     public boolean pause() {
         Log.d(TAG, "pause");
-        if (jobState == JobState.JOB_RUNNING) {
+        if (jobState == JobState.JOB_RUNNING || jobState == JobState.JOB_CREATED) {
             jobQueue.pause();
             return true;
         }
@@ -131,7 +133,14 @@ public class Job implements IJobInterface {
     public boolean unpause() {
         Log.d(TAG, "unpause");
         if (jobState == JobState.JOB_PAUSED) {
-            jobQueue.unpause();
+            if (! isStarted) {
+                if (! start()) {
+                    Log.w(TAG, "failed to start job=" + this);
+                }
+            }
+            else {
+                jobQueue.unpause();
+            }
             return true;
         }
         else {
@@ -188,30 +197,56 @@ public class Job implements IJobInterface {
 
     @Override
     public boolean isRunning() {
-        return jobState == JobState.JOB_RUNNING;
+        synchronized (this) {
+            return jobState == JobState.JOB_RUNNING;
+        }
     }
 
     @Override
     public boolean isPaused() {
-        return jobState == JobState.JOB_PAUSED;
+        synchronized (this) {
+            return jobState == JobState.JOB_PAUSED;
+        }
     }
 
     @Override
     public boolean isComplete() {
-        return jobState == JobState.JOB_COMPLETE;
+        synchronized (this) {
+            return jobState == JobState.JOB_COMPLETE;
+        }
     }
 
     @Override
     public boolean isCancelled() {
-        return jobState == JobState.JOB_CANCELLED;
+        synchronized (this) {
+            return jobState == JobState.JOB_CANCELLED;
+        }
+    }
+
+    public class NotifyJobStateChangeEvent {
+        private JobState jobState;
+
+        public JobState getJobState() {
+            return jobState;
+        }
+
+        public void setJobState(JobState jobState) {
+            this.jobState = jobState;
+        }
     }
 
     public void setJobState(JobState jobState) {
-        this.jobState = jobState;
+        synchronized (this) {
+            this.jobState = jobState;
+            NotifyJobStateChangeEvent notifyJobStateChangeEvent = new NotifyJobStateChangeEvent();
+            EventBus.getDefault().post(notifyJobStateChangeEvent); // implement notify using EventBus
+        }
     }
 
     public JobState getJobState() {
-        return jobState;
+        synchronized (this) {
+            return jobState;
+        }
     }
 
     public List<String> getUrlList() {

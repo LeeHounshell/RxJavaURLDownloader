@@ -4,8 +4,6 @@ import android.util.Log;
 
 import java.util.Formatter;
 
-import okio.ByteString;
-
 
 public class UrlResult {
     static final String TAG = "LEE: " + UrlResult.class.getSimpleName();

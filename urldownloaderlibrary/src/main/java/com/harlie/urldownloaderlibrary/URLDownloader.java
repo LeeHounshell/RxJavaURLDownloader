@@ -65,7 +65,7 @@ public class URLDownloader {
     public void pauseJobs() {
         Log.d(TAG, "pauseJobs");
         for (Job job : jobList) {
-            if (job.isRunning()) {
+            if (job.isRunning() || job.isCreated()) {
                 job.pause();
             }
         }
@@ -74,7 +74,7 @@ public class URLDownloader {
     public void stopJobs() {
         Log.d(TAG, "stopJobs");
         for (Job job : jobList) {
-            if (job.isRunning() || job.isPaused()) {
+            if (job.isRunning() || job.isCreated() || job.isPaused()) {
                 job.cancel();
             }
         }

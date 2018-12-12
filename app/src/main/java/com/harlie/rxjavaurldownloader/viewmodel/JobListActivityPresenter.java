@@ -6,13 +6,10 @@ import android.util.Log;
 import android.view.View;
 
 import com.harlie.rxjavaurldownloader.BaseActivity;
-import com.harlie.rxjavaurldownloader.JobListActivity;
 import com.harlie.rxjavaurldownloader.R;
 import com.harlie.rxjavaurldownloader.service.UrlDownloaderRequestDownloadService;
 import com.harlie.rxjavaurldownloader.util.JobManagementDialog;
 import com.harlie.urldownloaderlibrary.Job;
-
-import org.greenrobot.eventbus.Subscribe;
 
 
 public class JobListActivityPresenter {
@@ -66,21 +63,6 @@ public class JobListActivityPresenter {
     public void stopAllJobs(View v) {
         Log.d(TAG, "stopAllJobs");
         UrlDownloaderRequestDownloadService.startActionStopJobs(context);
-    }
-
-    @Subscribe
-    public void onEvent(UrlDownloaderRequestDownloadService.NotifyDataSetEvent notifyEvent) {
-        Log.d(TAG, "---------> onEvent <--------- notifyEvent=" + notifyEvent);
-        if (context instanceof JobListActivity) {
-            JobListActivity jobListActivity = (JobListActivity) context;
-            jobListActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "onEvent: got service notifyEvent");
-                    adapter.notifyDataSetChanged();
-                }
-            });
-        }
     }
 
     public int getBackgroundColor(Job job) {

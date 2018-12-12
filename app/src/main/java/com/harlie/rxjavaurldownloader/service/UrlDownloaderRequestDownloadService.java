@@ -4,9 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.harlie.rxjavaurldownloader.R;
 import com.harlie.urldownloaderlibrary.URLDownloader;
 
 import org.greenrobot.eventbus.EventBus;
@@ -36,6 +34,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
      * @see IntentService
      */
     public static void startActionStartJobs(Context context) {
+        Log.d(TAG, "startActionStartJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_START_JOBS);
         context.startService(intent);
@@ -48,6 +47,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
      * @see IntentService
      */
     public static void startActionPauseJobs(Context context) {
+        Log.d(TAG, "startActionPauseJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_PAUSE_JOBS);
         context.startService(intent);
@@ -60,6 +60,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
      * @see IntentService
      */
     public static void startActionStopJobs(Context context) {
+        Log.d(TAG, "startActionStopJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_STOP_JOBS);
         context.startService(intent);
@@ -80,6 +81,9 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
                 handleActionStopJobs();
             }
         }
+        else {
+            Log.w(TAG, "onHandleIntent: got null Intent!");
+        }
     }
 
     /**
@@ -88,12 +92,12 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
     private void handleActionStartJobs() {
         Log.d(TAG, "handleActionStartJobs");
         if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(this, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "handleActionStartJobs: NO JOBS QUEUED!");
         }
         else {
+            Log.d(TAG, "handleActionStartJobs: JOBS RUNNING!");
             URLDownloader.getInstance().startJobs();
-            Toast.makeText(this, R.string.jobs_running, Toast.LENGTH_SHORT).show();
-            notifyDataSetChanged();
+            notifyDataSetChanged(ACTION_START_JOBS);
         }
     }
 
@@ -103,12 +107,12 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
     private void handleActionPauseJobs() {
         Log.d(TAG, "handleActionPauseJobs");
         if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(this, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "handleActionPauseJobs: NO JOBS QUEUED!");
         }
         else {
+            Log.d(TAG, "handleActionPauseJobs: JOBS PAUSED!");
             URLDownloader.getInstance().pauseJobs();
-            Toast.makeText(this, R.string.jobs_paused, Toast.LENGTH_SHORT).show();
-            notifyDataSetChanged();
+            notifyDataSetChanged(ACTION_PAUSE_JOBS);
         }
     }
 
@@ -118,22 +122,34 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
     private void handleActionStopJobs() {
         Log.d(TAG, "handleActionStopJobs");
         if (URLDownloader.getInstance().getAllJobs() == null || URLDownloader.getInstance().getAllJobs().size() == 0) {
-            Toast.makeText(this, R.string.no_jobs_queued, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "handleActionStopJobs: NO JOBS QUEUED!");
         }
         else {
+            Log.d(TAG, "handleActionStopJobs: JOBS STOPPED");
             URLDownloader.getInstance().stopJobs();
-            Toast.makeText(this, R.string.jobs_stopped, Toast.LENGTH_SHORT).show();
-            notifyDataSetChanged();
+            notifyDataSetChanged(ACTION_STOP_JOBS);
         }
     }
 
     public class NotifyDataSetEvent {
-        // empty event
+        String action;
+
+        public NotifyDataSetEvent(String action) {
+            this.action = action;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public void setAction(String action) {
+            this.action = action;
+        }
     }
 
-    private void notifyDataSetChanged() {
-        Log.d(TAG, "notifyDataSetChanged");
-        NotifyDataSetEvent notifyDataSetEvent = new NotifyDataSetEvent();
+    private void notifyDataSetChanged(String action) {
+        Log.d(TAG, "notifyDataSetChanged: POST NotifyDataSetEvent action=" + action);
+        NotifyDataSetEvent notifyDataSetEvent = new NotifyDataSetEvent(action);
         EventBus.getDefault().post(notifyDataSetEvent); // implement notify using EventBus
     }
 
