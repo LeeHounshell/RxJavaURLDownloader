@@ -179,11 +179,11 @@ class JobQueueImpl implements IJobQueue {
                                         }
                                         else {
                                             Log.d(TAG, "accept: null RESPONSE BODY!");
-                                            job.incrementDownloadFailCount();
+                                            job.incrementDownloadFailCount(url);
                                         }
                                     } else {
                                         Log.e(TAG, "accept: DOWNLOAD FAILED!");
-                                        job.incrementDownloadFailCount();
+                                        job.incrementDownloadFailCount(url);
                                     }
                                     //--let UI thread work on updates--
                                 }
@@ -225,12 +225,12 @@ class JobQueueImpl implements IJobQueue {
             else {
                 int waiting4 = getJob().getUrlList().size() - urlCompleteMap.size();
                 Log.d(TAG, "Job waiting for " + waiting4 + " URL results. completed=" + urlCompleteMap.size() + ", total=" + getJob().getUrlList().size());
-                job.incrementDownloadFailCount();
+                job.incrementDownloadFailCount(url);
             }
         }
         else {
             Log.e(TAG, "*** did not find url in urlResultMap! url=" + url);
-            job.incrementDownloadFailCount();
+            job.incrementDownloadFailCount(url);
         }
     }
 
@@ -279,12 +279,15 @@ class JobQueueImpl implements IJobQueue {
                 } catch (FileNotFoundException e) {
                     error = true;
                     Log.w(TAG, "save failed, got FileNotFoundException e=" + e);
+                    job.incrementDownloadFailCount(url);
                 } catch (IOException e) {
                     error = true;
                     Log.w(TAG, "save failed, got IOException e=" + e);
+                    job.incrementDownloadFailCount(url);
                 } catch (NoSuchAlgorithmException e) {
                     error = true;
                     Log.w(TAG, "save failed, got SHA1 NoSuchAlgorithmException e=" + e);
+                    job.incrementDownloadFailCount(url);
                 } finally {
                     if (inputStream != null) {
                         closeQuietly(inputStream);
@@ -301,9 +304,11 @@ class JobQueueImpl implements IJobQueue {
             }
             else {
                 Log.w(TAG, "unable to get the UrlResult for url=" + url);
+                job.incrementDownloadFailCount(url);
             }
         } catch (IOException e) {
             Log.w(TAG, "file save failed, got IOException e=" + e);
+            job.incrementDownloadFailCount(url);
         }
         return sha1;
     }

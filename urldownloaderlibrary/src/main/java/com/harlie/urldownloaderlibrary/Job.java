@@ -269,6 +269,7 @@ public class Job implements IJobInterface {
         }
     }
 
+    @Override
     public void setJobState(JobState jobState) {
         synchronized (this) {
             this.jobState = jobState;
@@ -299,7 +300,10 @@ public class Job implements IJobInterface {
         return numberFailures;
     }
 
-    public void incrementDownloadFailCount() {
+    @Override
+    public void incrementDownloadFailCount(String url) {
+        Log.w(TAG, "===> UNABLE TO LOAD url=" + url);
+        //TODO: handle the bad url
         ++numberFailures;
     }
 
@@ -324,7 +328,6 @@ public class Job implements IJobInterface {
     public void retryTheJob() {
         Log.d(TAG, "retryTheJob");
         if (! isComplete()) {
-            incrementDownloadFailCount();
             if (getNumberFailures() >= getNumberRetrys()) {
                 Log.w(TAG, "=========> cancel job after max retrys reached. job=" + this);
                 cancel();

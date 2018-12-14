@@ -15,6 +15,8 @@ public interface IJobInterface {
     boolean isComplete();
     boolean isCancelled();
 
+    void setJobState(Job.JobState jobState);
+    void incrementDownloadFailCount(String url);
     void retryTheJob();
     List<String> getUrlsForJob();
 }
