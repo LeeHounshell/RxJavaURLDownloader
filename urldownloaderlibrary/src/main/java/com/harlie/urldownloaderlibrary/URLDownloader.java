@@ -5,15 +5,20 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class URLDownloader {
     static final String TAG = "LEE: " + URLDownloader.class.getSimpleName();
+    static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     private static final String ACTION_START_JOBS = "com.harlie.rxjavaurldownloader.service.action.START_JOBS";
     private static final String ACTION_PAUSE_JOBS = "com.harlie.rxjavaurldownloader.service.action.PAUSE_JOBS";
     private static final String ACTION_STOP_JOBS = "com.harlie.rxjavaurldownloader.service.action.STOP_JOBS";
 
     private static URLDownloader sInstance;
+    private static ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
     private volatile List<Job> jobList = new ArrayList<Job>();
 
 
@@ -112,5 +117,9 @@ public class URLDownloader {
             }
         }
         return null;
+    }
+
+    public static ExecutorService getExecutorService() {
+        return executorService;
     }
 }

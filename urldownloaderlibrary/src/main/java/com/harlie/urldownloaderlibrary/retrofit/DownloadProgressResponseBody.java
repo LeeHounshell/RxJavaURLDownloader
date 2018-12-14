@@ -76,7 +76,7 @@ public class DownloadProgressResponseBody extends ResponseBody {
                         UrlResult urlResult = jobQueue.getUrlResultMap().get(url);
                         if (urlResult == null) {
                             Log.w(TAG, "*** read: the urlResult is null! url=" + url);
-                            urlResult = new UrlResult(url);
+                            throw new IOException("nothing to read!");
                         }
                         ByteString sha1 = sink.sha1();
                         Log.d(TAG, "read: setSha1 in urlResultMap: sha1=" + sha1);
@@ -85,6 +85,7 @@ public class DownloadProgressResponseBody extends ResponseBody {
                     }
                     else {
                         Log.w(TAG, "read: the jobQueue is null! can't set SHA-1");
+                        throw new IOException("the jobQueue is null!");
                     }
                 }
                 else {

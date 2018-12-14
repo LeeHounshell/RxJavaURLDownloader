@@ -59,13 +59,18 @@ class JobQueueImpl implements IJobQueue {
     @Override
     public void start(Object jobLock) {
         Log.d(TAG, "start: job=" + job);
-        startTheJob();
-        synchronized (jobLock) {
-            Log.d(TAG, "start: notify job started");
-            jobLock.notify();
+        if (! job.isComplete()) {
+            startTheJob();
+            synchronized (jobLock) {
+                Log.d(TAG, "start: notify job started");
+                jobLock.notify();
+            }
+            //--let UI thread work on updates--
+            Thread.yield();
         }
-        //--let UI thread work on updates--
-        Thread.yield();
+        else {
+            Log.w(TAG, "start: job already complete!");
+        }
     }
 
     private void startTheJob() {
@@ -103,12 +108,13 @@ class JobQueueImpl implements IJobQueue {
                         Retrofit downloader = JobRunnerRetrofitClient.getRetrofit(theBaseUrl, listener, job.getTimeOut(), this);
                         if (downloader != null) {
                             startDownload(downloader, url, getPathFromUrl(theBaseUrl, url));
-                        }
-                        else {
+                        } else {
                             Log.e(TAG, "unable to create JobRunnerRetrofitClient!");
+                            job.retryTheJob();
                         }
                     } catch (MalformedURLException e) {
                         Log.e(TAG, "unable to convert URL url=" + url + ", e=" + e);
+                        job.cancel();
                     }
                 }
             }
@@ -123,33 +129,81 @@ class JobQueueImpl implements IJobQueue {
         return url.toLowerCase().replace(theBaseUrl.toLowerCase(), "");
     }
 
+    //NOTE: this will throttle the download to a reasonable number of concurrent Threads
     private void startDownload(Retrofit retrofit, final String url, final String path) {
-        Log.d(TAG, "startDownload: path=" + path);
-        IRetrofitDownloader downloader = retrofit.create(IRetrofitDownloader.class);
-        Disposable disposable = downloader
-                .urlDownloadRx(path)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.newThread())
-                .subscribe(new Consumer<Response<ResponseBody>>() {
-                    @Override
-                    public void accept(Response<ResponseBody> response) throws Exception {
-                        Log.d(TAG, "accept: response=" + response + ", success=" + response.isSuccessful());
-                        if (response.isSuccessful()) {
-                            ResponseBody responseBody = response.body();
-                            byte[] sha1 = saveResponseAsFile(responseBody, url);
-                            completeDownloadForUrl(url, sha1);
-                            UrlResult urlResult = job.getJobQueue().getUrlResultMap().get(url);
-                            Log.d(TAG, "accept: urlResult=" + urlResult);
-                        }
-                        else {
-                            Log.e(TAG, "DOWNLOAD FAILED!");
-                            job.retryTheJob();
-                        }
-                        //--let UI thread work on updates--
-                        Thread.yield();
-                    }
-                });
-        disposables.add(disposable);
+        Log.d(TAG, "startDownload: url=" + url + ", path=" + path);
+        if (! job.isComplete()) {
+            DownloadExecutorManagerTask downloadTask = new DownloadExecutorManagerTask(retrofit, url, path);
+            URLDownloader.getExecutorService().execute(downloadTask);
+        }
+        else {
+            Log.d(TAG, "startDownload: job already COMPLETE");
+        }
+    }
+
+    private class DownloadExecutorManagerTask implements Runnable {
+        final String TAG = "LEE: " + DownloadExecutorManagerTask.class.getSimpleName();
+
+        private final Retrofit retrofit;
+        private final String url;
+        private final String path;
+
+        private DownloadExecutorManagerTask(Retrofit retrofit, String url, String path) {
+            this.retrofit = retrofit;
+            this.url = url;
+            this.path = path;
+        }
+
+        private void doDownload(Retrofit retrofit, final String url, final String path) {
+            Log.d(TAG, "doDownload: path=" + path);
+            if (! job.isComplete()) {
+                IRetrofitDownloader downloader = retrofit.create(IRetrofitDownloader.class);
+                Disposable disposable = downloader
+                        .urlDownloadRx(path)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(Schedulers.newThread())
+                        .subscribe(new Consumer<Response<ResponseBody>>() {
+                            @Override
+                            public void accept(Response<ResponseBody> response) throws Exception {
+                                Log.d(TAG, "accept: response=" + response + ", success=" + response.isSuccessful());
+                                if (! job.isComplete()) {
+                                    if (response.isSuccessful()) {
+                                        ResponseBody responseBody = response.body();
+                                        if (responseBody != null) {
+                                            byte[] sha1 = saveResponseAsFile(responseBody, url);
+                                            completeDownloadForUrl(url, sha1);
+                                            UrlResult urlResult = job.getJobQueue().getUrlResultMap().get(url);
+                                            if (urlResult != null) {
+                                                Log.d(TAG, "accept: SUCCESSFUL urlResult=" + urlResult);
+                                            }
+                                        }
+                                        else {
+                                            Log.d(TAG, "accept: null RESPONSE BODY!");
+                                            job.incrementDownloadFailCount();
+                                        }
+                                    } else {
+                                        Log.e(TAG, "accept: DOWNLOAD FAILED!");
+                                        job.incrementDownloadFailCount();
+                                    }
+                                    //--let UI thread work on updates--
+                                }
+                                else {
+                                    Log.d(TAG, "accept: job already COMPLETE");
+                                }
+                                Thread.yield();
+                            }
+                        });
+                disposables.add(disposable);
+            }
+            else {
+                Log.d(TAG, "doDownload: job already COMPLETE!");
+            }
+        }
+
+        @Override
+        public void run() {
+            doDownload(retrofit, url, path);
+        }
     }
 
     private void completeDownloadForUrl(String url, byte[] sha1) {
@@ -171,12 +225,12 @@ class JobQueueImpl implements IJobQueue {
             else {
                 int waiting4 = getJob().getUrlList().size() - urlCompleteMap.size();
                 Log.d(TAG, "Job waiting for " + waiting4 + " URL results. completed=" + urlCompleteMap.size() + ", total=" + getJob().getUrlList().size());
-                job.retryTheJob();
+                job.incrementDownloadFailCount();
             }
         }
         else {
             Log.e(TAG, "*** did not find url in urlResultMap! url=" + url);
-            job.retryTheJob();
+            job.incrementDownloadFailCount();
         }
     }
 

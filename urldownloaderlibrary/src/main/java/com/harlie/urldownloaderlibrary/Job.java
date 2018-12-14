@@ -60,6 +60,10 @@ public class Job implements IJobInterface {
     @Override
     public boolean start() {
         Log.d(TAG, "start");
+        if (jobState == JobState.JOB_COMPLETE) {
+            Log.w(TAG, "start: job already COMPLETE");
+            return false;
+        }
         if (getNumberFailures() >= getNumberRetrys()) {
             Log.w(TAG, "=========> max retrys reached for job=" + this);
             retryTheJob();
@@ -106,14 +110,15 @@ public class Job implements IJobInterface {
 
     class RerunJobTask extends TimerTask {
         public void run() {
-            timer.cancel();
-            if (! isPaused()) {
-                Log.d(TAG, "RerunJobTask: time to retry the job=" + this);
-                start();
-            }
-            else {
-                Log.d(TAG, "RerunJobTask: backoff the job=" + this);
-                retryAfterBackoff();
+            if (! isComplete()) {
+                timer.cancel();
+                if (!isPaused()) {
+                    Log.d(TAG, "RerunJobTask: time to retry the job=" + this);
+                    start();
+                } else {
+                    Log.d(TAG, "RerunJobTask: backoff the job=" + this);
+                    retryAfterBackoff();
+                }
             }
         }
     }
@@ -241,7 +246,7 @@ public class Job implements IJobInterface {
 
     public class NotifyJobStateChangeEvent {
         private int jobId = Job.this.getJobId();
-        private JobState jobState;
+        private JobState jobState = Job.this.jobState;
 
         public JobState getJobState() {
             return jobState;
@@ -318,13 +323,18 @@ public class Job implements IJobInterface {
     @Override
     public void retryTheJob() {
         Log.d(TAG, "retryTheJob");
-        incrementDownloadFailCount();
-        if (getNumberFailures() >= getNumberRetrys()) {
-            Log.w(TAG, "=========> cancel job after max retrys reached. job=" + this);
-            cancel();
-        } else {
-            Log.w(TAG, "retry job after backoff");
-            retryAfterBackoff();
+        if (! isComplete()) {
+            incrementDownloadFailCount();
+            if (getNumberFailures() >= getNumberRetrys()) {
+                Log.w(TAG, "=========> cancel job after max retrys reached. job=" + this);
+                cancel();
+            } else {
+                Log.w(TAG, "retry job after backoff");
+                retryAfterBackoff();
+            }
+        }
+        else {
+            Log.d(TAG, "retryTheJob: already COMPLETE!");
         }
     }
 
