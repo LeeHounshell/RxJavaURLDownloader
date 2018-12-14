@@ -134,12 +134,6 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
     private static void requestDownloadOperation(final Context context, final Intent intent) {
         Log.d(TAG, "requestDownloadOperation");
         URLDownloader.getInstance().requestDownloadOperation(intent);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                context.startService(intent);
-//            }
-//        }).start();
     }
 
     public class NotifyDataSetEvent {
