@@ -143,15 +143,7 @@ class JobQueueImpl implements IJobQueue {
                         }
                         else {
                             Log.e(TAG, "DOWNLOAD FAILED!");
-                            job.incrementDownloadFailCount();
-                            if (job.getNumberFailures() >= job.getNumberRetrys()) {
-                                Log.w(TAG, "cancel job after max retrys reached");
-                                job.cancel();
-                            }
-                            else {
-                                Log.w(TAG, "retry job after backoff");
-                                job.retryAfterBackoff();
-                            }
+                            job.retryTheJob();
                         }
                         //--let UI thread work on updates--
                         Thread.yield();
@@ -174,15 +166,17 @@ class JobQueueImpl implements IJobQueue {
             if (urlCompleteMap.size() >= getJob().getUrlList().size()) {
                 Log.d(TAG, "===> ALL URLs DOWNLOADED! JOB COMPLETE!");
                 complete();
+                urlResultMap.remove(url);
             }
             else {
                 int waiting4 = getJob().getUrlList().size() - urlCompleteMap.size();
                 Log.d(TAG, "Job waiting for " + waiting4 + " URL results. completed=" + urlCompleteMap.size() + ", total=" + getJob().getUrlList().size());
+                job.retryTheJob();
             }
-            urlResultMap.remove(url);
         }
         else {
             Log.e(TAG, "*** did not find url in urlResultMap! url=" + url);
+            job.retryTheJob();
         }
     }
 

@@ -37,7 +37,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
         Log.d(TAG, "startActionStartJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_START_JOBS);
-        context.startService(intent);
+        requestDownloadOperation(context, intent);
     }
 
     /**
@@ -50,7 +50,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
         Log.d(TAG, "startActionPauseJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_PAUSE_JOBS);
-        context.startService(intent);
+        requestDownloadOperation(context, intent);
     }
 
     /**
@@ -63,7 +63,7 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
         Log.d(TAG, "startActionStopJobs");
         Intent intent = new Intent(context, UrlDownloaderRequestDownloadService.class);
         intent.setAction(ACTION_STOP_JOBS);
-        context.startService(intent);
+        requestDownloadOperation(context, intent);
     }
 
     @Override
@@ -129,6 +129,17 @@ public class UrlDownloaderRequestDownloadService extends IntentService {
             URLDownloader.getInstance().stopJobs();
             notifyDataSetChanged(ACTION_STOP_JOBS);
         }
+    }
+
+    private static void requestDownloadOperation(final Context context, final Intent intent) {
+        Log.d(TAG, "requestDownloadOperation");
+        URLDownloader.getInstance().requestDownloadOperation(intent);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                context.startService(intent);
+//            }
+//        }).start();
     }
 
     public class NotifyDataSetEvent {

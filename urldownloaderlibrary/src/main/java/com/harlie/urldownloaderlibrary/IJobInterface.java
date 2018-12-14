@@ -1,5 +1,7 @@
 package com.harlie.urldownloaderlibrary;
 
+import java.util.List;
+
 public interface IJobInterface {
     boolean start();
     boolean pause();
@@ -12,4 +14,7 @@ public interface IJobInterface {
     boolean isPaused();
     boolean isComplete();
     boolean isCancelled();
+
+    void retryTheJob();
+    List<String> getUrlsForJob();
 }

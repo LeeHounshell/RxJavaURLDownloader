@@ -29,7 +29,7 @@ public class MainActivityPresenter {
     static final String TAG = "LEE: " + MainActivityPresenter.class.getSimpleName();
 
     public static int TIME_OUT = 30; // seconds
-    public static int RETRY_LIMIT = 4;
+    public static int RETRY_LIMIT = 256;
 
     private static int sCallback;
 

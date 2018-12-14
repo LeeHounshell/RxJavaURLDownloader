@@ -26,7 +26,7 @@ public class Job implements IJobInterface {
     private static volatile int sLastJobNumber = 0;
 
     private volatile JobState jobState;
-    private List<String> urlList;
+    private volatile List<String> urlList;
     private IJobQueue jobQueue;
     private Timer timer;
 
@@ -51,6 +51,7 @@ public class Job implements IJobInterface {
         this.jobQueue = new JobQueueImpl(this);
     }
 
+    @Override
     public List<String> getUrlsForJob() {
         Log.d(TAG, "getUrlsForJob");
         return urlList;
@@ -60,12 +61,14 @@ public class Job implements IJobInterface {
     public boolean start() {
         Log.d(TAG, "start");
         if (getNumberFailures() >= getNumberRetrys()) {
-            Log.w(TAG, "max retrys reached for job=" + this);
+            Log.w(TAG, "=========> max retrys reached for job=" + this);
+            retryTheJob();
             return false;
         }
         if (jobState == JobState.JOB_CREATED || (! isStarted && jobState == JobState.JOB_PAUSED)) {
             Log.d(TAG, "start: create Thread for job");
             isStarted = true;
+            setJobState(Job.JobState.JOB_RUNNING);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -104,22 +107,34 @@ public class Job implements IJobInterface {
     class RerunJobTask extends TimerTask {
         public void run() {
             timer.cancel();
-            Log.d(TAG, "time to retry the job=" + this);
-            start();
+            if (! isPaused()) {
+                Log.d(TAG, "RerunJobTask: time to retry the job=" + this);
+                start();
+            }
+            else {
+                Log.d(TAG, "RerunJobTask: backoff the job=" + this);
+                retryAfterBackoff();
+            }
         }
     }
 
-    public void retryAfterBackoff() {
+    private void retryAfterBackoff() {
         backoffSeconds *= 2; // use exponential backoff
         Log.d(TAG, "retryAfterBackoff: backoffSeconds=" + backoffSeconds);
-        timer = new Timer();
-        timer.schedule(new RerunJobTask(), backoffSeconds * 1000);
+        try {
+            timer = new Timer();
+            timer.schedule(new RerunJobTask(), backoffSeconds * 1000);
+        }
+        catch (Exception e) {
+            Log.w(TAG, "unable to RerunJobTask: job=" + this + ", e=" + e);
+        }
     }
 
     @Override
     public boolean pause() {
         Log.d(TAG, "pause");
         if (jobState == JobState.JOB_RUNNING || jobState == JobState.JOB_CREATED) {
+            setJobState(Job.JobState.JOB_PAUSED);
             jobQueue.pause();
             return true;
         }
@@ -133,6 +148,7 @@ public class Job implements IJobInterface {
     public boolean unpause() {
         Log.d(TAG, "unpause");
         if (jobState == JobState.JOB_PAUSED) {
+            setJobState(JobState.JOB_RUNNING);
             if (! isStarted) {
                 if (! start()) {
                     Log.w(TAG, "failed to start job=" + this);
@@ -224,14 +240,27 @@ public class Job implements IJobInterface {
     }
 
     public class NotifyJobStateChangeEvent {
+        private int jobId = Job.this.getJobId();
         private JobState jobState;
 
         public JobState getJobState() {
             return jobState;
         }
 
+        public int getJobId() {
+            return jobId;
+        }
+
         public void setJobState(JobState jobState) {
             this.jobState = jobState;
+        }
+
+        @Override
+        public String toString() {
+            return "NotifyJobStateChangeEvent{" +
+                    "jobId=" + jobId +
+                    ", jobState=" + jobState +
+                    '}';
         }
     }
 
@@ -284,6 +313,19 @@ public class Job implements IJobInterface {
             name = resources.getString(R.string.job_id) + ": " + jobId;
         }
         return name;
+    }
+
+    @Override
+    public void retryTheJob() {
+        Log.d(TAG, "retryTheJob");
+        incrementDownloadFailCount();
+        if (getNumberFailures() >= getNumberRetrys()) {
+            Log.w(TAG, "=========> cancel job after max retrys reached. job=" + this);
+            cancel();
+        } else {
+            Log.w(TAG, "retry job after backoff");
+            retryAfterBackoff();
+        }
     }
 
     public IJobQueue getJobQueue() {
